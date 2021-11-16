@@ -36,7 +36,7 @@ class Springboot1ApplicationTests {
 	@Test
 	public void insertTest() {
 		User user = new User();
-		user.setName("关欣宇");
+		user.setName("cury");
 		user.setAge(22);
 		int result = userMapper.insert(user);
 		System.out.println(result);
@@ -45,13 +45,13 @@ class Springboot1ApplicationTests {
 	@Test
 	public void updateTest() {
 		User user = new User();
-//		user.setName("丛吉钰");
+//		user.setName("");
 //		user.setAge(22);
 //		int result = userMapper.insert(user);
 //		System.out.println("result:"+result);
 
 		user.setId(2);
-		user.setName("关欣宇");
+		user.setName("");
 		user.setAge(21);
 		int result = userMapper.updateById(user);
 		System.out.println("result:"+result);
@@ -60,7 +60,7 @@ class Springboot1ApplicationTests {
 	@Test
 	public void testOptimisticLocker() {
 		User user = userMapper.selectById(3);
-		user.setName("丛吉钰");
+		user.setName("");
 		user.setAge(22);
 		userMapper.updateById(user);
 	}
