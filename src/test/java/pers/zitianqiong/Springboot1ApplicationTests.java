@@ -5,8 +5,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import pers.zitianqiong.controller.HelloController;
-import pers.zitianqiong.pojo.User;
+import pers.zitianqiong.domain.User;
 import pers.zitianqiong.mapper.UserMapper;
+import pers.zitianqiong.utils.RedisUtil;
 
 import java.util.List;
 
@@ -20,10 +21,18 @@ class Springboot1ApplicationTests {
 	@Autowired
 	private HelloController helloController;
 
+	@Autowired
+	private RedisUtil redisUtil;
+
 	@Test
 	void contextLoads() {
 		List<User> users = userMapper.selectList(null);
 		users.forEach(System.out :: println);
+	}
+
+	@Test
+	void redisTest(){
+		System.out.println(redisUtil.get("999"));
 	}
 
 	@Test
@@ -36,7 +45,6 @@ class Springboot1ApplicationTests {
 	@Test
 	public void insertTest() {
 		User user = new User();
-		user.setName("cury");
 		user.setAge(22);
 		int result = userMapper.insert(user);
 		System.out.println(result);
@@ -45,13 +53,12 @@ class Springboot1ApplicationTests {
 	@Test
 	public void updateTest() {
 		User user = new User();
-//		user.setName("");
+//		user.setName("丛吉钰");
 //		user.setAge(22);
 //		int result = userMapper.insert(user);
 //		System.out.println("result:"+result);
 
-		user.setId(2);
-		user.setName("");
+		user.setId(2l);
 		user.setAge(21);
 		int result = userMapper.updateById(user);
 		System.out.println("result:"+result);
@@ -60,7 +67,6 @@ class Springboot1ApplicationTests {
 	@Test
 	public void testOptimisticLocker() {
 		User user = userMapper.selectById(3);
-		user.setName("");
 		user.setAge(22);
 		userMapper.updateById(user);
 	}

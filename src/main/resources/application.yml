@@ -2,18 +2,6 @@
 server:
   port: 8081
 
-person:
-  id: 1
-  name: 丛吉钰
-  hobby: play,read,sleep
-  family: father,mother
-  pet:
-    type: dog
-    name: kity
-  map:
-    key: v1
-    value: v2
-
 #数据库连接
 spring:
   datasource:
@@ -21,7 +9,16 @@ spring:
     username: root
     password: 123+++w.
     url: jdbc:p6spy:mysql://localhost:3306/mybatis-plus?serverTimezone=GMT%2B8&useUnicode=true&characterEncoding=utf-8
-    type: com.alibaba.druid.pool.DruidDataSource
+    #hikari数据库连接池
+    hikari:
+      pool-name: common-pool
+      minimum-idle: 5 #最小空闲连接数量
+      idle-timeout: 180000 #空闲连接存活最大时间，默认600000（10分钟）
+      auto-commit: true  #此属性控制从池返回的连接的默认自动提交行为,默认值：true
+      maximum-pool-size: 30 #连接池最大连接数，默认是10
+      max-lifetime: 1800000 #此属性控制池中连接的最长生命周期，值0表示无限生命周期，默认1800000即30分钟
+      connection-timeout: 30000 #数据库连接超时时间,默认30秒，即30000
+      connection-test-query: SELECT 1 from dual
   profiles:
     active: dev
   web:
@@ -33,7 +30,30 @@ spring:
     hiddenmethod:
       filter:
         enabled: true
+  redis:
+    host: 112.124.3.83
+    port: 6379
+    password: 123456
+    client-type: jedis
+    jedis:
+      pool:
+        max-active: 10
+    # 连接超时时间（毫秒）
+    timeout: 5000
+  #jackson 格式化时间戳
+  jackson:
+    serialization:
+      write-dates-as-timestamps: true
 #日志输出在控制台
 mybatis-plus:
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    cache-enabled: true
+  #MyBaits 别名包扫描路径，通过该属性可以给包中的类注册别名，注册后在 Mapper 对应的 XML 文件中可以直接使用类名，而不用使用全限定的类名(即 XML 中调用的时候不用包含包名)
+  type-aliases-package: pers.zitianqiong.mapper
+  #MyBatis Mapper 所对应的 XML 文件位置，如果您在 Mapper 中有自定义方法(XML 中有自定义实现)，需要进行该配置，告诉 Mapper 所对应的 XML 文件位置
+  mapper-locations: classpath*:/mapper/**/*.xml
+  #TypeHandler 扫描路径，如果配置了该属性，SqlSessionFactoryBean 会把该包下面的类注册为对应的 TypeHandler
+  type-handlers-package: pers.zitianqiong.handler
+  global-config:
+    banner: false
