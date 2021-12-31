@@ -70,6 +70,7 @@ public class UserController {
 		return "delete";
 	}
 
+    //nametest
 	@PutMapping("/user")
 	public String putUser(){
 		return "put";
