@@ -16,4 +16,5 @@
     <!--@mbg.generated-->
     id, `name`, age, create_time, update_time, version, deleted
   </sql>
+
 </mapper>

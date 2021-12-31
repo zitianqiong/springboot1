@@ -5,8 +5,12 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.CachingConfigurerSupport;
 import org.springframework.cache.annotation.EnableCaching;
+import org.springframework.cache.interceptor.CacheErrorHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
@@ -26,8 +30,46 @@ import java.time.Duration;
  * @author 丛吉钰
  */
 @Configuration
-@EnableCaching//开启注解
-public class RedisConfig {
+@EnableCaching
+@Slf4j
+public class RedisConfig extends CachingConfigurerSupport {
+
+	/**
+	 * redis数据操作异常处理。该方法处理逻辑：在日志中打印出错误信息，但是放行。
+	 * 保证redis服务器出现连接等问题的时候不影响程序的正常运行
+	 */
+	@Override
+	public CacheErrorHandler errorHandler() {
+		return new CacheErrorHandler() {
+			@Override
+			public void handleCachePutError(RuntimeException exception, Cache cache,
+			                                Object key, Object value) {
+				handleRedisErrorException(exception, key);
+			}
+
+			@Override
+			public void handleCacheGetError(RuntimeException exception, Cache cache,
+			                                Object key) {
+				handleRedisErrorException(exception, key);
+			}
+
+			@Override
+			public void handleCacheEvictError(RuntimeException exception, Cache cache,
+			                                  Object key) {
+				handleRedisErrorException(exception, key);
+			}
+
+			@Override
+			public void handleCacheClearError(RuntimeException exception, Cache cache) {
+				handleRedisErrorException(exception, null);
+			}
+		};
+	}
+
+	protected void handleRedisErrorException(RuntimeException exception, Object key) {
+		log.error("redis异常：key=[{}]", key, exception);
+	}
+
 	@Bean
 	public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory factory) {
 		RedisTemplate<String, Object> template = new RedisTemplate<>();
@@ -49,6 +91,7 @@ public class RedisConfig {
 		template.setHashValueSerializer(jackson2JsonRedisSerializer);
 		return template;
 	}
+
 
 	@Bean
 	public CacheManager cacheManager(RedisConnectionFactory factory) {
