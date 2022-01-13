@@ -1,13 +1,16 @@
 package pers.zitianqiong.handler;
 
+import java.util.Date;
+
 import com.baomidou.mybatisplus.core.handlers.MetaObjectHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.reflection.MetaObject;
 import org.springframework.stereotype.Component;
 
-import java.util.Date;
+
 /**
  * 自动调用的时间更新 mybatis-plus中更新数据库的createTime与updateTime
+ *
  * @author zitianqiong
  */
 
@@ -15,16 +18,16 @@ import java.util.Date;
 @Component
 public class MyMetaObjectHandler implements MetaObjectHandler {
 
-	@Override
-	public void insertFill(MetaObject metaObject) {
-		log.info("start insert fill");
-		this.setFieldValByName("createTime",new Date(),metaObject);
-		this.setFieldValByName("updateTime",new Date(),metaObject);
-	}
+    @Override
+    public void insertFill(MetaObject metaObject) {
+        log.info("自动插入数据");
+        this.setFieldValByName("createTime", new Date(), metaObject);
+        this.setFieldValByName("updateTime", new Date(), metaObject);
+    }
 
-	@Override
-	public void updateFill(MetaObject metaObject) {
-		log.info("start update fill");
-		this.setFieldValByName("updateTime",new Date(),metaObject);
-	}
+    @Override
+    public void updateFill(MetaObject metaObject) {
+        log.info("自动修改数据");
+        this.setFieldValByName("updateTime", new Date(), metaObject);
+    }
 }

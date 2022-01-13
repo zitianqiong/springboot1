@@ -19,7 +19,8 @@ public class MyBatisPlusConfig {
 	//mybatisPlus3.4以上用该方法
 	/**
 	 *
-	 * 新的分页插件,一缓和二缓遵循mybatis的规则,需要设置 MybatisConfiguration#useDeprecatedExecutor = false 避免缓存出现问题(该属性会在旧插件移除后一同移除)
+	 *新的分页插件,一缓和二缓遵循mybatis的规则,需要设置 MybatisConfiguration#useDeprecatedExecutor = false
+     * 避免缓存出现问题(该属性会在旧插件移除后一同移除)
 	 *
 	 * MybatisPlusInterceptor是一系列的实现InnerInterceptor的拦截器链，也可以理解为一个集合。可以包括如下的一些拦截器
 	 *
@@ -30,8 +31,13 @@ public class MyBatisPlusConfig {
 	 * sql性能规范: IllegalSQLInnerInterceptor
 	 * 防止全表更新与删除: BlockAttackInnerInterceptor
 	 */
+    /**
+     *
+
+     * @return MybatisPlusInterceptor
+     **/
 	@Bean
-	public MybatisPlusInterceptor MybatisPlusInterceptor() {
+	public MybatisPlusInterceptor mybatisPlusInterceptor() {
 		MybatisPlusInterceptor mybatisPlusInterceptor = new MybatisPlusInterceptor();
 		mybatisPlusInterceptor.addInnerInterceptor(new OptimisticLockerInnerInterceptor());
 		mybatisPlusInterceptor.addInnerInterceptor(new PaginationInnerInterceptor(DbType.H2));
