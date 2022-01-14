@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE suppressions PUBLIC
+  "-//Checkstyle//DTD SuppressionFilter Configuration 1.2//EN"
+  "https://checkstyle.org/dtds/suppressions_1_2.dtd">
+
+<suppressions>
+    <suppress checks="HideUtilityClassConstructor" files=".*Application"/>
+    <!-- suppression for spring boot configurations -->
+    <suppress checks="JavadocMethod" files=".*Config\.java$" />
+    <suppress checks="JavadocType" files=".*Config\.java$" />
+
+    <suppress checks="Javadoc*" files=".*Mapper\.java$"/>
+    <suppress checks="MagicNumber"
+    files="RedisConfig|User|KafkaConfiguration"/>
+<!--    <suppress checks="*" files="PropagatorServiceImpl"/>-->
+
+
+</suppressions>
