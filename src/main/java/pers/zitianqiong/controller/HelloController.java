@@ -23,6 +23,11 @@ public class HelloController {
         return "hello spring boot";
     }
 
+    /**
+     *
+     * @param model .
+     * @return String
+     **/
     @GetMapping("/toLoginPage")
     public String toLoginPage(Model model) {
         model.addAttribute("currentYear", Calendar.getInstance().get(Calendar.YEAR));

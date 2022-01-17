@@ -5,7 +5,7 @@ server:
 #数据库连接
 spring:
   profiles:
-    active: redis,jdbc,mybatisplus
+    active: redis,jdbc,mybatisplus,consul
   cache:
     type: redis
     # 对基于注解的Redis缓存数据统一设置有效期为1分钟，单位毫秒

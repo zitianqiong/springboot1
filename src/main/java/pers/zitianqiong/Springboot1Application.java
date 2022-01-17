@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cache.annotation.EnableCaching;
+import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.env.Environment;
 
@@ -16,6 +17,7 @@ import org.springframework.core.env.Environment;
 @SpringBootApplication
 @EnableCaching
 @Slf4j
+@EnableDiscoveryClient
 public class Springboot1Application {
 
     /**
@@ -32,7 +34,7 @@ public class Springboot1Application {
 
 
         log.info("\n----------------------------------------------------------\n\t"
-                + "Application SysApplication is running! Access URLs:\n\t"
+                + "系统应用正在运行! 请访问URLs:\n\t"
                 + "Local: \t\thttp://localhost:" + port + path + "/\n\t"
                 + "External: \thttp://" + ip + ":" + port + path + "/\n\t"
                 + "----------------------------------------------------------");
