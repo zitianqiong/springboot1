@@ -6,15 +6,14 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 /**
  * <p>描述:</p>
- *
  * @author 丛吉钰
  */
 @Controller
 public class FilmeController {
     //  影片详情页
     @GetMapping("/detail/{type}/{path}")
-    public String toDetail(@PathVariable("type")String type, @PathVariable("path")String path) {
-        return "detail/"+type+"/"+path;
+    public String toDetail(@PathVariable("type") String type, @PathVariable("path") String path) {
+        return "detail/" + type + "/" + path;
     }
 
     // 向用户登录页面跳转

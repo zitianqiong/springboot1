@@ -10,7 +10,6 @@ import org.springframework.stereotype.Component;
 
 /**
  * 自动调用的时间更新 mybatis-plus中更新数据库的createTime与updateTime
- *
  * @author zitianqiong
  */
 

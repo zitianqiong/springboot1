@@ -2,7 +2,6 @@ package pers.zitianqiong;
 
 /**
  * <p>描述:</p>
- *
  * @author 丛吉钰
  */
 public class Solution {
@@ -70,7 +69,7 @@ public class Solution {
                     }
                     sum += 1000;
             }
-            if (i != length-1)
+            if (i != length - 1)
                 c = s.charAt(i + 1);
         }
         sum += sumtemp;

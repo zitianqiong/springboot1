@@ -24,7 +24,6 @@ public class HelloController {
     }
 
     /**
-     *
      * @param model .
      * @return String
      **/

@@ -9,20 +9,19 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
 /**
- * 
  * @TableName authority
  */
-@TableName(value ="authority")
+@TableName(value = "authority")
 @Data
 public class Authority implements Serializable {
     /**
-     * 
+     *
      */
     @TableId(value = "id", type = IdType.AUTO)
     private Integer id;
 
     /**
-     * 
+     *
      */
     @TableField(value = "authority")
     private String authority;
@@ -43,7 +42,8 @@ public class Authority implements Serializable {
         }
         Authority other = (Authority) that;
         return (this.getId() == null ? other.getId() == null : this.getId().equals(other.getId()))
-            && (this.getAuthority() == null ? other.getAuthority() == null : this.getAuthority().equals(other.getAuthority()));
+                && (this.getAuthority() == null ? other.getAuthority() == null :
+                this.getAuthority().equals(other.getAuthority()));
     }
 
     @Override

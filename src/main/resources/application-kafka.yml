@@ -1,0 +1,17 @@
+spring:
+  kafka:
+    # kafka服务地址
+    bootstrap-servers: ${KAFKA_BROKER}
+    producer:
+      # 生产者消息key序列化方式
+      key-serializer: org.apache.kafka.common.serialization.IntegerSerializer
+      # 生产者消息value序列化方式
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+    consumer:
+      # 消费者组
+      group-id: topic.quick.default
+      # 消费者消息value反序列化方式
+      key-deserializer: org.apache.kafka.common.serialization.IntegerDeserializer
+      # 消费者消息value反序列化方式
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      enable-auto-commit: true

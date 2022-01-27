@@ -11,10 +11,8 @@ import org.springframework.data.redis.core.*;
 import org.springframework.stereotype.Service;
 
 
-
 /**
  * <p>redis-util</p>
- *
  * @author 丛吉钰
  */
 @Slf4j
@@ -25,7 +23,6 @@ public class RedisUtil {
 
     /**
      * 写入缓存
-     *
      * @param key   .
      * @param value .
      * @return boolean
@@ -44,7 +41,6 @@ public class RedisUtil {
 
     /**
      * 写入缓存设置时效时间
-     *
      * @param key        .
      * @param value      .
      * @param expireTime .
@@ -66,7 +62,6 @@ public class RedisUtil {
 
     /**
      * 批量删除对应的value
-     *
      * @param keys .
      */
     public void remove(final String... keys) {
@@ -77,7 +72,6 @@ public class RedisUtil {
 
     /**
      * 批量删除key
-     *
      * @param pattern .
      */
     public void removePattern(final String pattern) {
@@ -89,7 +83,6 @@ public class RedisUtil {
 
     /**
      * 删除对应的value
-     *
      * @param key .
      */
     public void remove(final String key) {
@@ -100,7 +93,6 @@ public class RedisUtil {
 
     /**
      * 判断缓存中是否有对应的value
-     *
      * @param key .
      * @return .
      */
@@ -110,7 +102,6 @@ public class RedisUtil {
 
     /**
      * 读取缓存
-     *
      * @param key .
      * @return .
      */
@@ -123,7 +114,6 @@ public class RedisUtil {
 
     /**
      * 哈希 添加
-     *
      * @param key     .
      * @param value   .
      * @param hashKey .
@@ -135,7 +125,6 @@ public class RedisUtil {
 
     /**
      * 哈希获取数据
-     *
      * @param key     .
      * @param hashKey .
      * @return .
@@ -147,7 +136,6 @@ public class RedisUtil {
 
     /**
      * 列表添加
-     *
      * @param k .
      * @param v .
      */
@@ -158,7 +146,6 @@ public class RedisUtil {
 
     /**
      * 列表获取
-     *
      * @param k  .
      * @param l  .
      * @param l1 .
@@ -171,7 +158,6 @@ public class RedisUtil {
 
     /**
      * 集合添加
-     *
      * @param key   .
      * @param value .
      */
@@ -182,7 +168,6 @@ public class RedisUtil {
 
     /**
      * 集合获取
-     *
      * @param key .
      * @return .
      */
@@ -193,7 +178,6 @@ public class RedisUtil {
 
     /**
      * 有序集合添加
-     *
      * @param key    .
      * @param value  .
      * @param scoure .
@@ -205,7 +189,6 @@ public class RedisUtil {
 
     /**
      * 有序集合获取
-     *
      * @param key     .
      * @param scoure  .
      * @param scoure1 .

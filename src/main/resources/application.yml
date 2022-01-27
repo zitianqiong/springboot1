@@ -1,16 +1,10 @@
-#服务端口
 server:
-  port: 8080
-
-#数据库连接
+  port: 8081
 spring:
   profiles:
-    active: redis,jdbc,mybatisplus,consul
-  cache:
-    type: redis
-    # 对基于注解的Redis缓存数据统一设置有效期为1分钟，单位毫秒
-    redis:
-      time-to-live: 60000
+    active: redis,mybatisplus,kafka,dubbo
+  application:
+    name: springboot
   web:
     resources:
       cache:
@@ -38,3 +32,24 @@ spring:
     multipart:
       max-file-size: 10MB
       max-request-size: 50MB
+nacos:
+  discovery:
+    server-addr: 127.0.0.1:8848
+    username: nacos
+    password: nacos
+    namespace: 4c677c0f-234d-4472-a808-d861550efa8d
+    register:
+      group-name: dev
+  # ============== nacos-config  ============== #
+  config:
+    server-addr: 127.0.0.1:8848
+    type: yaml
+    username: nacos
+    password: nacos
+    namespace: 4c677c0f-234d-4472-a808-d861550efa8d
+    auto-refresh: true
+    group: dev
+    data-id: springboot.yaml
+    bootstrap:
+      enable: true
+      log-enable: true

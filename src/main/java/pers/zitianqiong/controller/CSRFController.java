@@ -18,6 +18,7 @@ public class CSRFController {
     public String toUpdate() {
         return "csrf/csrfTest";
     }
+
     // 用户修改提交处理
     @ResponseBody
     @PostMapping(value = "/updateUser")

@@ -7,7 +7,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RestController;
 import pers.zitianqiong.domain.Customer;
 import pers.zitianqiong.service.CustomerService;
 import pers.zitianqiong.utils.RedisUtil;
@@ -25,6 +30,19 @@ public class CustomerController {
     private final CustomerService userService;
 
     private final RedisUtil redisUtil;
+
+    private final KafkaTemplate kafkaTemplate;
+
+    /**
+     *
+     * @param message .
+     * @return String message
+     **/
+    @GetMapping("send")
+    public String send(String message) {
+        kafkaTemplate.send("topic.quick.demo", message);
+        return message;
+    }
 
     /**
      * @return List<User>
@@ -48,7 +66,7 @@ public class CustomerController {
      * @return User 用户
      **/
     @PostMapping("/user")
-    @Cacheable(value = "user", key = "#id+1", unless = "#result == null")
+    @Cacheable(value = "user", key = "#id", unless = "#result == null")
     public Customer postUser(int id) {
         return userService.getById(id);
     }

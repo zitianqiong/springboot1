@@ -16,7 +16,6 @@ import pers.zitianqiong.service.impl.UserDetailsServiceImpl;
 
 /**
  * <p>描述:</p>
- *
  * @author 丛吉钰
  */
 @Slf4j
@@ -28,7 +27,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private DataSource dataSource;
 
     @Bean
-    public PasswordEncoder getPwdEncoder(){
+    public PasswordEncoder getPwdEncoder() {
         return new BCryptPasswordEncoder();
     }
 
@@ -43,16 +42,19 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         auth.userDetailsService(userDetailsService).passwordEncoder(encoder);
     }
 
+    @SuppressWarnings("checkstyle:MagicNumber")
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        /*http.authorizeRequests()
-                .anyRequest().permitAll().and().logout().permitAll();//配置不需要登录验证*/
-        http.authorizeRequests().antMatchers("/").permitAll()
+        //关闭csrf验证
+        http.csrf().disable();
+        http.authorizeRequests()
+                .anyRequest().permitAll().and().logout().permitAll(); //配置不需要登录验证
+        /*http.authorizeRequests().antMatchers("/").permitAll()
                 .antMatchers("/login/**").permitAll()
                 .antMatchers("/detail/common/**").hasRole("common")
                 .antMatchers("/detail/vip/**").hasRole("vip")
                 .anyRequest().authenticated()
-                .and().formLogin();
+                .and().formLogin();*/
         // 自定义用户登录控制
         http.formLogin()
                 .loginPage("/userLogin").permitAll()
@@ -78,8 +80,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
      * @return
      */
     @Bean
-    public JdbcTokenRepositoryImpl tokenRepository(){
-        JdbcTokenRepositoryImpl jr=new JdbcTokenRepositoryImpl();
+    public JdbcTokenRepositoryImpl tokenRepository() {
+        JdbcTokenRepositoryImpl jr = new JdbcTokenRepositoryImpl();
         jr.setDataSource(dataSource);
         return jr;
     }

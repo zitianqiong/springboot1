@@ -1,0 +1,13 @@
+dubbo:
+  application:
+    name: springboot1
+  registry:
+    address: nacos://localhost:8848  #consul://127.0.0.1:8500
+    parameters:
+      namespace: 4c677c0f-234d-4472-a808-d861550efa8d
+    timeout: 20000
+  protocol:
+    name: dubbo
+    #port: 20880 #dubbo服务暴露的端口
+  scan:
+    base-packages: pers.zitianqiong.service

@@ -26,7 +26,6 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 /**
  * <p>redis 配置</p>
- *
  * @author 丛吉钰
  */
 @Configuration
@@ -39,56 +38,55 @@ public class RedisConfig extends CachingConfigurerSupport {
      * @param factory redis工厂
      * @return RedisTemplate<Object>
      **/
-	@Bean
-	public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory factory) {
-		RedisTemplate<String, Object> template = new RedisTemplate<>();
-		RedisSerializer<String> redisSerializer = new StringRedisSerializer();
-		Jackson2JsonRedisSerializer<Object> jacksonSeial = new Jackson2JsonRedisSerializer<>(Object.class);
-		ObjectMapper om = new ObjectMapper();
-		om.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY);
-		om.activateDefaultTyping(LaissezFaireSubTypeValidator.instance,
+    @Bean
+    public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory factory) {
+        RedisTemplate<String, Object> template = new RedisTemplate<>();
+        RedisSerializer<String> redisSerializer = new StringRedisSerializer();
+        Jackson2JsonRedisSerializer<Object> jacksonSeial = new Jackson2JsonRedisSerializer<>(Object.class);
+        ObjectMapper om = new ObjectMapper();
+        om.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY);
+        om.activateDefaultTyping(LaissezFaireSubTypeValidator.instance,
                 ObjectMapper.DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY);
-		jacksonSeial.setObjectMapper(om);
-
-		template.setConnectionFactory(factory);
+        jacksonSeial.setObjectMapper(om);
+        template.setConnectionFactory(factory);
         //设置模板为jackson
         //template.setDefaultSerializer(jacksonSeial);
-		//key序列化方式
-		template.setKeySerializer(redisSerializer);
-		//value序列化
-		template.setValueSerializer(jacksonSeial);
-		template.setHashKeySerializer(jacksonSeial);
-		//value hashmap序列化
-		template.setHashValueSerializer(jacksonSeial);
-		return template;
-	}
+        //key序列化方式
+        template.setKeySerializer(redisSerializer);
+        //value序列化
+        template.setValueSerializer(jacksonSeial);
+        template.setHashKeySerializer(jacksonSeial);
+        //value hashmap序列化
+        template.setHashValueSerializer(jacksonSeial);
+        return template;
+    }
 
     /**
      * 想要注解使用自定义配置cache Manager
      * @param factory redis工厂
      * @return CacheManager
      **/
-	@Bean
-	public CacheManager cacheManager(RedisConnectionFactory factory) {
-		RedisSerializer<String> redisSerializer = new StringRedisSerializer();
-		Jackson2JsonRedisSerializer<Object> jacksonSeial = new Jackson2JsonRedisSerializer<>(Object.class);
-		//解决查询缓存转换异常的问题
-		ObjectMapper om = new ObjectMapper();
-		om.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY);
-		om.activateDefaultTyping(LaissezFaireSubTypeValidator.instance,
+    @Bean
+    public CacheManager cacheManager(RedisConnectionFactory factory) {
+        RedisSerializer<String> redisSerializer = new StringRedisSerializer();
+        Jackson2JsonRedisSerializer<Object> jacksonSeial = new Jackson2JsonRedisSerializer<>(Object.class);
+        //解决查询缓存转换异常的问题
+        ObjectMapper om = new ObjectMapper();
+        om.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY);
+        om.activateDefaultTyping(LaissezFaireSubTypeValidator.instance,
                 ObjectMapper.DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY);
-		jacksonSeial.setObjectMapper(om);
-		// 配置序列化（解决乱码的问题）,过期时间600秒
-		RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig()
-            .entryTtl(Duration.ofDays(1))
-            .serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(redisSerializer));
-        config.serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(jacksonSeial))
-				.disableCachingNullValues();
-		RedisCacheManager cacheManager = RedisCacheManager.builder(factory)
-				.cacheDefaults(config)
-				.build();
-		return cacheManager;
-	}
+        jacksonSeial.setObjectMapper(om);
+        // 配置序列化（解决乱码的问题）,过期时间3600秒
+        RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig()
+                .entryTtl(Duration.ofHours(1))
+                .serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(redisSerializer))
+                .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(jacksonSeial))
+                .disableCachingNullValues();
+        RedisCacheManager cacheManager = RedisCacheManager.builder(factory)
+                .cacheDefaults(config)
+                .build();
+        return cacheManager;
+    }
 
     /**
      * redis数据操作异常处理。该方法处理逻辑：在日志中打印出错误信息，但是放行。
@@ -123,10 +121,8 @@ public class RedisConfig extends CachingConfigurerSupport {
     }
 
     /**
-     *
      * @param exception .
-     * @param key .
-
+     * @param key       .
      **/
     protected void handleRedisErrorException(RuntimeException exception, Object key) {
         log.error("redis异常：key=[{}]", key, exception);
