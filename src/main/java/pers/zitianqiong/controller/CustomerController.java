@@ -1,21 +1,23 @@
 package pers.zitianqiong.controller;
 
-import java.util.List;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+import pers.zitianqiong.common.Result;
 import pers.zitianqiong.domain.Customer;
+import pers.zitianqiong.domain.Dept;
+import pers.zitianqiong.domain.Stuts;
 import pers.zitianqiong.service.CustomerService;
+import pers.zitianqiong.service.DeptService;
 import pers.zitianqiong.utils.RedisUtil;
+import pers.zitianqiong.vo.DeptVO;
+
+import java.util.List;
 
 /**
  * <p></p>
@@ -30,19 +32,14 @@ public class CustomerController {
     private final CustomerService userService;
 
     private final RedisUtil redisUtil;
-
-    private final KafkaTemplate kafkaTemplate;
+    
+    private final DeptService deptService;
 
     /**
      *
      * @param message .
      * @return String message
      **/
-    @GetMapping("send")
-    public String send(String message) {
-        kafkaTemplate.send("topic.quick.demo", message);
-        return message;
-    }
 
     /**
      * @return List<User>
@@ -52,7 +49,7 @@ public class CustomerController {
         String series = "userList";
         List<Customer> userList;
         if (redisUtil.exists(series)) {
-            userList = (List<Customer>) redisUtil.get(series);
+            userList = redisUtil.get(series);
         } else {
             userList = userService.list();
             redisUtil.set("userList", userList);
@@ -96,4 +93,14 @@ public class CustomerController {
     public String putUser() {
         return "put";
     }
+    
+    @PostMapping("dept")
+    public Result dept(@Validated @RequestBody DeptVO deptVO){
+        deptVO.setStuts(Stuts.NORMAL);
+        Dept dept = new Dept();
+        BeanUtils.copyProperties(deptVO,dept);
+        deptService.save(dept);
+        return Result.success();
+    }
+    
 }

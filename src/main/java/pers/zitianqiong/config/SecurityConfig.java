@@ -1,7 +1,5 @@
 package pers.zitianqiong.config;
 
-import javax.sql.DataSource;
-
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -13,6 +11,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl;
 import pers.zitianqiong.service.impl.UserDetailsServiceImpl;
+
+import javax.sql.DataSource;
 
 /**
  * <p>描述:</p>
@@ -49,12 +49,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http.csrf().disable();
         http.authorizeRequests()
                 .anyRequest().permitAll().and().logout().permitAll(); //配置不需要登录验证
-        /*http.authorizeRequests().antMatchers("/").permitAll()
-                .antMatchers("/login/**").permitAll()
-                .antMatchers("/detail/common/**").hasRole("common")
-                .antMatchers("/detail/vip/**").hasRole("vip")
-                .anyRequest().authenticated()
-                .and().formLogin();*/
+//        http.authorizeRequests().antMatchers("/").permitAll()
+//                .antMatchers("/login/**").permitAll()
+//                .antMatchers("/detail/common/**").hasRole("common")
+//                .antMatchers("/detail/vip/**").hasRole("vip")
+//                .anyRequest().authenticated()
+//                .and().formLogin();
         // 自定义用户登录控制
         http.formLogin()
                 .loginPage("/userLogin").permitAll()

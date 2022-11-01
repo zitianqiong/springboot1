@@ -1,14 +1,15 @@
 package pers.zitianqiong.utils;
 
-import java.io.Serializable;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
-
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.*;
 import org.springframework.stereotype.Service;
+
+import java.io.Serializable;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 
 /**
@@ -17,21 +18,21 @@ import org.springframework.stereotype.Service;
  */
 @Slf4j
 @Service
+@SuppressWarnings(value = { "unchecked", "rawtypes" })
 public class RedisUtil {
     @Autowired
     private RedisTemplate redisTemplate;
-
+    
     /**
-     * 写入缓存
-     * @param key   .
-     * @param value .
-     * @return boolean
+     * 缓存基本的对象，Integer、String、实体类等
+     *
+     * @param key 缓存的键值
+     * @param value 缓存的值
      */
-    public boolean set(final String key, Object value) {
+    public <T> boolean set(final String key, final T value) {
         boolean result = false;
         try {
-            ValueOperations<Serializable, Object> operations = redisTemplate.opsForValue();
-            operations.set(key, value);
+            redisTemplate.opsForValue().set(key, value);
             result = true;
         } catch (Exception e) {
             log.error("Exception:", e);
@@ -50,8 +51,7 @@ public class RedisUtil {
     public boolean set(final String key, Object value, Long expireTime, TimeUnit timeUnit) {
         boolean result = false;
         try {
-            ValueOperations<Serializable, Object> operations = redisTemplate.opsForValue();
-            operations.set(key, value);
+            redisTemplate.opsForValue().set(key, value);
             redisTemplate.expire(key, expireTime, timeUnit);
             result = true;
         } catch (Exception e) {
@@ -59,7 +59,32 @@ public class RedisUtil {
         }
         return result;
     }
-
+    
+    /**
+     * 设置有效时间
+     *
+     * @param key Redis键
+     * @param timeout 超时时间
+     * @return true=设置成功；false=设置失败
+     */
+    public boolean expire(final String key, final long timeout)
+    {
+        return expire(key, timeout, TimeUnit.SECONDS);
+    }
+    
+    /**
+     * 设置有效时间
+     *
+     * @param key Redis键
+     * @param timeout 超时时间
+     * @param unit 时间单位
+     * @return true=设置成功；false=设置失败
+     */
+    public boolean expire(final String key, final long timeout, final TimeUnit unit)
+    {
+        return Boolean.TRUE.equals(redisTemplate.expire(key, timeout, unit));
+    }
+    
     /**
      * 批量删除对应的value
      * @param keys .
@@ -76,7 +101,7 @@ public class RedisUtil {
      */
     public void removePattern(final String pattern) {
         Set<Serializable> keys = redisTemplate.keys(pattern);
-        if (keys.size() > 0) {
+        if (keys != null && keys.size() > 0) {
             redisTemplate.delete(keys);
         }
     }
@@ -90,26 +115,60 @@ public class RedisUtil {
             redisTemplate.delete(key);
         }
     }
-
+    
+    /**
+     * 删除集合对象
+     *
+     * @param collection 多个对象
+     * @return
+     */
+    public long remove(final Collection collection)
+    {
+        return redisTemplate.delete(collection);
+    }
+    
+    /**
+     * 缓存List数据
+     *
+     * @param key 缓存的键值
+     * @param dataList 待缓存的List数据
+     * @return 缓存的对象
+     */
+    public <T> long setCacheList(final String key, final List<T> dataList)
+    {
+        Long count = redisTemplate.opsForList().rightPushAll(key, dataList);
+        return count == null ? 0 : count;
+    }
+    
+    /**
+     * 获得缓存的list对象
+     *
+     * @param key 缓存的键值
+     * @return 缓存键值对应的数据
+     */
+    public <T> List<T> getCacheList(final String key)
+    {
+        return redisTemplate.opsForList().range(key, 0, -1);
+    }
+    
     /**
      * 判断缓存中是否有对应的value
      * @param key .
      * @return .
      */
     public boolean exists(final String key) {
-        return redisTemplate.hasKey(key);
+        return Boolean.TRUE.equals(redisTemplate.hasKey(key));
     }
-
+    
     /**
-     * 读取缓存
-     * @param key .
-     * @return .
+     * 获得缓存的基本对象。
+     *
+     * @param key 缓存键值
+     * @return 缓存键值对应的数据
      */
-    public Object get(final String key) {
-        Object result = null;
-        ValueOperations<Serializable, Object> operations = redisTemplate.opsForValue();
-        result = operations.get(key);
-        return result;
+    public <T> T get(final String key) {
+        ValueOperations<Serializable, T> operations = redisTemplate.opsForValue();
+        return operations.get(key);
     }
 
     /**

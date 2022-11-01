@@ -1,7 +1,10 @@
 package pers.zitianqiong.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -13,6 +16,12 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 public class MyMVCconfig implements WebMvcConfigurer {
     @Autowired
     private MyInterceptor myInterceptor;
+
+    @Bean
+    public RestTemplate restTemplate(RestTemplateBuilder builder) {
+        // Do any additional configuration here
+        return builder.build();
+    }
 
     // 添加视图管理
     @Override

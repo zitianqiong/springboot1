@@ -1,30 +1,46 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1,shrink-to-fit=no">
-    <title>用户登录界面1</title>
+    <title>用户登录界面2</title>
     <link th:href="@{/login/css/bootstrap.min.css}" rel="stylesheet">
     <link th:href="@{/login/css/signin.css}" rel="stylesheet">
+    <link >
 </head>
 <body class="text-center">
-<!--  用户登录form表单 -->
-<form class="form-signin">
-    <img class="mb-4" th:src="@{/login/img/login.jpg}" width="72" height="72">
-    <h1 class="h3 mb-3 font-weight-normal" th:text="#{login.tip}">请登录</h1>
-    <input type="text" class="form-control"
-           th:placeholder="#{login.username}" required="" autofocus="">
-    <input type="password" class="form-control"
-           th:placeholder="#{login.password}" required="">
+<form class="form-signin" th:action="@{/userLogin}" th:method="post" >
+    <img th:src="@{/login/img/login.jpg}" width="72px" height="72px">
+    <h1 class="h3 mb-3 font-weight-normal">请登录</h1>
+    <!-- 用户登录错误信息提示框 -->
+    <div th:if="${param.error}" style="color: red;height: 40px;text-align: left;font-size: 1.1em">
+        <img th:src="@{/login/img/loginError1.jpg}" width="20px">用户名或密码错误，请重新登录！
+    </div>
+    <input type="text" name="name" class="form-control" placeholder="用户名" required="" autofocus="">
+    <!--        自定义password name-->
+    <input type="password" name="pwd" class="form-control" placeholder="密码" required="">
+    <input type="hidden" name="uuid" id="uuid"/>
     <div class="checkbox mb-3">
         <label>
-            <input type="checkbox" value="remember-me"> [[#{login.rememberme}]]
+            <input type="checkbox" name="rememberme"> 记住我
         </label>
     </div>
-    <button class="btn btn-lg btn-primary btn-block" type="submit" th:text="#{login.button}">登录</button>
-    <p class="mt-5 mb-3 text-muted">© <span th:text="${currentYear}">2021</span>-<span th:text="${currentYear}+1">2022</span></p>
-    <a class="btn btn-sm" th:href="@{/toLoginPage(l='zh_CN')}">中文</a>
-    <a class="btn btn-sm" th:href="@{/toLoginPage(l='en_US')}">English</a>
+    <button class="btn btn-lg btn-primary btn-block" type="submit" >登录</button>
+    <p class="mt-5 mb-3 text-muted">Copyright© 2021-2022</p>
 </form>
+<script>
+    window.onload=()=>{
+        $("code").click();
+    }
+
+    let refresh=(obj)=>{
+        console.log(obj);
+        $.get("/getCode", function (data) {
+            console.log(data.data);
+            obj.src=data.data.img;
+            $("#uuid").val(data.data.uuid);
+        })
+
+    }
+</script>
 </body>
 </html>
