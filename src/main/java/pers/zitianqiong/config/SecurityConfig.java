@@ -3,14 +3,21 @@ package pers.zitianqiong.config;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl;
-import pers.zitianqiong.service.impl.UserDetailsServiceImpl;
+import pers.zitianqiong.domain.Customer;
+import pers.zitianqiong.filter.JwtAuthencationTokenFilter;
+import pers.zitianqiong.service.CustomerService;
 
 import javax.sql.DataSource;
 
@@ -22,9 +29,10 @@ import javax.sql.DataSource;
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
-    private UserDetailsServiceImpl userDetailsService;
-    @Autowired
     private DataSource dataSource;
+    @Lazy
+    @Autowired
+    private CustomerService customerService;
 
     @Bean
     public PasswordEncoder getPwdEncoder() {
@@ -38,8 +46,15 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
      */
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-        auth.userDetailsService(userDetailsService).passwordEncoder(encoder);
+        auth.userDetailsService(userDetailsService()).passwordEncoder(getPwdEncoder());
+    }
+    
+    @Override
+    public void configure(WebSecurity web) {
+        web.ignoring().antMatchers(
+                "/login","/logout","/css/**","/js/**","/index.html","favicon.ico",
+                "/doc.html","/webjars/**","/swagger-resources/**","/v2/api-docs/**","/captcha"
+        );
     }
 
     @SuppressWarnings("checkstyle:MagicNumber")
@@ -48,7 +63,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         //关闭csrf验证
         http.csrf().disable();
         http.authorizeRequests()
-                .anyRequest().permitAll().and().logout().permitAll(); //配置不需要登录验证
+                .anyRequest().permitAll().and().logout().permitAll()
+                .and()
+                .headers()
+                .cacheControl(); //配置不需要登录验证
 //        http.authorizeRequests().antMatchers("/").permitAll()
 //                .antMatchers("/login/**").permitAll()
 //                .antMatchers("/detail/common/**").hasRole("common")
@@ -57,22 +75,36 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 //                .and().formLogin();
         // 自定义用户登录控制
         http.formLogin()
-                .loginPage("/userLogin").permitAll()
-                .usernameParameter("name").passwordParameter("pwd")
-                .defaultSuccessUrl("/")
-                .failureUrl("/userLogin?error");
-
+                .loginPage("/toLoginPage").permitAll();
+//                .defaultSuccessUrl("/")
+//                .failureUrl("/toLoginPage?error");
+//        添加jwt 登录授权过滤器
+        http.addFilterBefore(jwtAuthencationTokenFilter(), UsernamePasswordAuthenticationFilter.class);
         // 自定义用户退出控制
         http.logout()
                 .logoutUrl("/mylogout")
                 .logoutSuccessUrl("/");
 
-        // 定制Remember-me记住我功能
-        http.rememberMe()
-                .rememberMeParameter("rememberme")
-                .tokenValiditySeconds(200)//token有效200s
-                // 对cookie信息进行持久化管理
-                .tokenRepository(tokenRepository());
+//        // 定制Remember-me记住我功能 学习jwt，关闭此功能
+//        http.rememberMe()
+//                .rememberMeParameter("rememberme")
+//                .tokenValiditySeconds(200)//token有效200s
+//                // 对cookie信息进行持久化管理
+//                .tokenRepository(tokenRepository());
+    }
+    
+    @Override
+    @Bean
+    public UserDetailsService userDetailsService(){
+        return username -> {
+            Customer customer = customerService.getCustomer(username);
+            if (customer != null){
+                customer.setRoles(customerService.getCustomerAuthoritiy(username));
+                return customer;
+            }else {
+                throw new UsernameNotFoundException("当前用户不存在");
+            }
+        };
     }
 
     /**
@@ -85,4 +117,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         jr.setDataSource(dataSource);
         return jr;
     }
+    
+    //bean注解暴露出来
+    @Bean
+    public JwtAuthencationTokenFilter jwtAuthencationTokenFilter(){
+        return new JwtAuthencationTokenFilter();
+    }
+    
 }

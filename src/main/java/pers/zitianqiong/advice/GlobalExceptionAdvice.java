@@ -1,4 +1,4 @@
-package pers.zitianqiong.handler;
+package pers.zitianqiong.advice;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -20,7 +20,7 @@ import java.util.Objects;
  */
 @RestControllerAdvice
 @Slf4j
-public class GlobalExceptionHandler {
+public class GlobalExceptionAdvice {
     
     /**
      * 处理空指针的异常
@@ -49,7 +49,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ErrorResult exceptionHandler(HttpServletRequest request, Exception e) {
         ErrorResult error = ErrorResult.fail(ResultCode.SYSTEM_EXCEPTION, e);
-        log.error("URL:{},未知异常！原因是:", request.getRequestURI(), e);
+        log.error("URL:{},发生异常！异常类型:", request.getRequestURI(), e);
         return error;
     }
     

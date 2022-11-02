@@ -8,39 +8,25 @@
     <link >
 </head>
 <body class="text-center">
-<form class="form-signin" th:action="@{/userLogin}" th:method="post" >
-    <img th:src="@{/login/img/login.jpg}" width="72px" height="72px">
+<form class="form-signin" th:action="@{/login}" th:method="post" >
     <h1 class="h3 mb-3 font-weight-normal">请登录</h1>
     <!-- 用户登录错误信息提示框 -->
     <div th:if="${param.error}" style="color: red;height: 40px;text-align: left;font-size: 1.1em">
         <img th:src="@{/login/img/loginError1.jpg}" width="20px">用户名或密码错误，请重新登录！
     </div>
-    <input type="text" name="name" class="form-control" placeholder="用户名" required="" autofocus="">
+    <input type="hidden" th:value="${_csrf.token}" name="_csrf" th:if="${_csrf}"/>
+    <input type="text" name="username" class="form-control" placeholder="用户名" required="" autofocus="">
     <!--        自定义password name-->
-    <input type="password" name="pwd" class="form-control" placeholder="密码" required="">
-    <input type="hidden" name="uuid" id="uuid"/>
-    <div class="checkbox mb-3">
-        <label>
-            <input type="checkbox" name="rememberme"> 记住我
-        </label>
-    </div>
+    <input type="password" name="password" class="form-control" placeholder="密码" required="">
+<!--    <div class="checkbox mb-3">-->
+<!--        <label>-->
+<!--            <input type="checkbox" name="rememberme"> 记住我-->
+<!--        </label>-->
+<!--    </div>-->
     <button class="btn btn-lg btn-primary btn-block" type="submit" >登录</button>
     <p class="mt-5 mb-3 text-muted">Copyright© 2021-2022</p>
 </form>
 <script>
-    window.onload=()=>{
-        $("code").click();
-    }
-
-    let refresh=(obj)=>{
-        console.log(obj);
-        $.get("/getCode", function (data) {
-            console.log(data.data);
-            obj.src=data.data.img;
-            $("#uuid").val(data.data.uuid);
-        })
-
-    }
 </script>
 </body>
 </html>

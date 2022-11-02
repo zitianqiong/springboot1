@@ -3,7 +3,8 @@ package pers.zitianqiong.common;
 import lombok.Data;
 
 import java.io.Serializable;
-import java.util.Date;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Data
 public class Result implements Serializable {
@@ -13,7 +14,7 @@ public class Result implements Serializable {
 
     private String message;
     
-    private Date date = new Date();
+    private String date = LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
 
     private Integer count;
 
@@ -61,6 +62,17 @@ public class Result implements Serializable {
         Result result = new Result();
         result.setResultCode(ResultCode.SUCCESS);
         result.setCount(count);
+        result.setData(data);
+        return result;
+    }
+    
+    /** 返回成功
+     * @Description
+     * @param
+     */
+    public static Result success(Integer code, String msg, Object data) {
+        Result result = new Result();
+        result.setResultCode(ResultCode.SUCCESS);
         result.setData(data);
         return result;
     }

@@ -109,20 +109,25 @@ public class AccessLogFilter extends OncePerRequestFilter {
             final int responseStatus = response.getStatus();
 
             final List<String> logs = Lists.newArrayList();
-            logs.add("time=" + useTime + "ms");
-            logs.add("ip=" + requestIp);
-            logs.add("uri=" + requestUri);
+            logs.add("ip:{" + requestIp+"}");
+            logs.add("uri:{" + requestUri+"}");
 //            logs.add("headers=" + requestHeaders);
-            logs.add("status=" + responseStatus);
-//            logs.add("requestContentType=" + request.getContentType());
-//            logs.add("responseContentType=" + response.getContentType());
-            logs.add("params=" + requestParams);
-            logs.add("request=" + requestString);
-            logs.add("response=" + responseString);
+            logs.add("状态=" + responseStatus);
+            if (request.getContentType() != null)
+                logs.add("请求类型:" + request.getContentType());
+            if (response.getContentType() != null)
+                logs.add("响应类型:" + response.getContentType());
+            if (StringUtils.isNotEmpty(requestParams))
+                logs.add("参数:{" + requestParams+"}");
+            if (StringUtils.isNotEmpty(requestString))
+                logs.add("请求=" + requestString);
+            if (StringUtils.isNotEmpty(responseString))
+                logs.add("响应=" + responseString);
+            logs.add("耗时:" + useTime + "ms");
 
-            logger.info(String.join(",", logs));
+            logger.info(String.join(", ", logs));
         } catch (Throwable e) {
-            logger.error("got an exception when saving access log", e);
+            logger.error("保存访问日志时出现异常", e);
         } finally {
             copyResponse(response);
         }
@@ -215,12 +220,9 @@ public class AccessLogFilter extends OncePerRequestFilter {
     private String getResponseString(final HttpServletResponse response) {
         final ContentCachingResponseWrapper wrapper = WebUtils.getNativeResponse(response, ContentCachingResponseWrapper.class);
         if (wrapper != null) {
-            try {
-                final byte[] buf = wrapper.getContentAsByteArray();
-                return new String(buf, wrapper.getCharacterEncoding()).replaceAll("\n|\r", "");
-            } catch (UnsupportedEncodingException e) {
-                return "[UNKNOWN]";
-            }
+            final byte[] buf = wrapper.getContentAsByteArray();
+//                return new String(buf, wrapper.getCharacterEncoding()).replaceAll("\n|\r", "");
+            return new String(buf, StandardCharsets.UTF_8).replaceAll("\n|\r", "");
         }
         return StringUtils.EMPTY;
     }

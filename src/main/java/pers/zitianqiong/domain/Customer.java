@@ -1,21 +1,30 @@
 package pers.zitianqiong.domain;
 
-import java.io.Serializable;
-import java.util.Date;
-
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.*;
+import lombok.AccessLevel;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.experimental.Accessors;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
+import java.io.Serializable;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 用户表
  * @TableName customer
  */
 @TableName(value = "customer")
+@EqualsAndHashCode(callSuper = false)
+@Accessors(chain = true)
 @Data
-public class Customer implements Serializable {
+public class Customer implements Serializable, UserDetails {
     /**
      * 用户id唯一
      */
@@ -33,11 +42,6 @@ public class Customer implements Serializable {
     private String password;
 
     /**
-     *
-     */
-    private Integer valid;
-
-    /**
      * 年龄
      */
     private Integer age;
@@ -45,24 +49,69 @@ public class Customer implements Serializable {
     /**
      * 创建时间
      */
+    @TableField("create_time")
     private Date createTime;
 
     /**
      * 更新时间
      */
+    @TableField("update_time")
     private Date updateTime;
 
     /**
      * 乐观锁版本
      */
+    @Version
     private Integer version;
+    
+    @Getter(AccessLevel.NONE)//加上这个注解，就不会生成该字段的get，set方法
+    private Boolean enabled;
+    
+    @TableField(exist = false)//告诉mybatis plus 数据库中没有这个自定义的字段
+    private List<Authority> roles;
 
     /**
      * 是否被删除0：正常，1：删除
      */
+    @TableLogic
     private Integer deleted;
 
     @TableField(exist = false)
-    private static final long serialVersionUID = 1L;
-
+    private static final long serialVersionUID = -116846212116874336L;
+    
+    /**
+     * 已经是SpringSecurity框架了
+     * 真正登录的方法就是UserDetails的Username
+     * 登陆成功就是details
+     */
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        if (roles != null){
+            List<SimpleGrantedAuthority> authorities = roles
+                    .stream()
+                    //将获得的权限名字通过 SimpleGrantedAuthority 转换成授权的 url
+                    .map(role -> new SimpleGrantedAuthority(role.getAuthority()))
+                    .collect(Collectors.toList());
+            return authorities;
+        }
+        return null;
+    }
+    
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+    
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+    @Override
+    public boolean isEnabled() {
+        return enabled;
+    }
 }
