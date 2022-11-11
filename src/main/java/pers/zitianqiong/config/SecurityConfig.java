@@ -53,7 +53,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     public void configure(WebSecurity web) {
         web.ignoring().antMatchers(
                 "/login","/logout","/css/**","/js/**","/index.html","favicon.ico",
-                "/doc.html","/webjars/**","/swagger-resources/**","/v2/api-docs/**","/captcha"
+                "/doc.html","/webjars/**","/v2/api-docs/**","/captcha"
         );
     }
 
@@ -99,7 +99,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         return username -> {
             Customer customer = customerService.getCustomer(username);
             if (customer != null){
-                customer.setRoles(customerService.getCustomerAuthoritiy(username));
+                customer.setRoles(customerService.getCustomerAuthority(username));
                 return customer;
             }else {
                 throw new UsernameNotFoundException("当前用户不存在");

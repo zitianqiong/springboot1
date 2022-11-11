@@ -1,6 +1,7 @@
 package pers.zitianqiong.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import pers.zitianqiong.common.JsonResult;
 import pers.zitianqiong.domain.Authority;
 import pers.zitianqiong.domain.Customer;
 
@@ -14,7 +15,7 @@ public interface CustomerService extends IService<Customer> {
 
     Customer getCustomer(String username);
 
-    List<Authority> getCustomerAuthoritiy(String username);
+    List<Authority> getCustomerAuthority(String username);
     
     /**
      * 登录之后，返回token
@@ -23,5 +24,5 @@ public interface CustomerService extends IService<Customer> {
      * @param request
      * @return
      */
-    String login(String username, String password, HttpServletRequest request);
+    JsonResult<?> login(String username, String password, String code, HttpServletRequest request);
 }

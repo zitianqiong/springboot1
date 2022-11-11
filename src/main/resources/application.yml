@@ -2,7 +2,7 @@ server:
   port: 8081
 spring:
   profiles:
-    active: redis,mybatisplus
+    active: dev,mybatisPlus
   application:
     name: springboot
   web:
@@ -32,23 +32,6 @@ spring:
     multipart:
       max-file-size: 10MB
       max-request-size: 50MB
-nacos:
-  discovery:
-    server-addr: 127.0.0.1:8848
-    namespace: 4c677c0f-234d-4472-a808-d861550efa8d
-    register:
-      group-name: dev
-  # ============== nacos-config  ============== #
-  config:
-    server-addr: localhost:8848
-    type: yaml
-    namespace: 4c677c0f-234d-4472-a808-d861550efa8d
-    auto-refresh: true
-    group: dev
-    data-id: springboot.yaml
-    bootstrap:
-      enable: true
-      log-enable: true
 jwt:
   # JWT存储的请求头
   tokenHeader: Authorization

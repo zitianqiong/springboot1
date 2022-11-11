@@ -3,14 +3,19 @@ package pers.zitianqiong.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import pers.zitianqiong.common.FailResult;
+import pers.zitianqiong.common.JsonResult;
+import pers.zitianqiong.common.SuccessResult;
 import pers.zitianqiong.domain.Authority;
 import pers.zitianqiong.domain.Customer;
 import pers.zitianqiong.domain.CustomerAuthority;
@@ -56,7 +61,7 @@ public class CustomerServiceImpl extends ServiceImpl<CustomerMapper, Customer>
     }
 
     @Override
-    public List<Authority> getCustomerAuthoritiy(String username) {
+    public List<Authority> getCustomerAuthority(String username) {
         Customer customer = getOne(new LambdaQueryWrapper<Customer>().eq(Customer :: getUsername, username));
         QueryWrapper<CustomerAuthority> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("authority_id",customer.getId());
@@ -78,17 +83,26 @@ public class CustomerServiceImpl extends ServiceImpl<CustomerMapper, Customer>
      * @return 响应
      */
     @Override
-    public String login(String username, String password, HttpServletRequest request) {
+    public JsonResult<?> login(String username, String password, String code, HttpServletRequest request) {
+        String captcha = (String) request.getSession().getAttribute("captcha");
+        if(StringUtils.isEmpty(code)||!captcha.equalsIgnoreCase(code)){
+            return new FailResult<>("验证码不正确，请重新输入");
+        }
         //security主要是通过：UserDetailsService里面的username来实现登录的
         //将浏览器传过来的username，放进去。 返回的是userDetails用户详细信息（账号、密码、权限等等）
-        UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+        UserDetails userDetails;
+        try {
+            userDetails = userDetailsService.loadUserByUsername(username);
+        }catch (UsernameNotFoundException e){
+            return new FailResult<>("当前用户不存在");
+        }
         //判断传过来的username是否为空 或者 （浏览器输入的和数据库密码不一致） 则密码或者用户名是错的
         if(userDetails==null || !passwordEncoder.matches(password,userDetails.getPassword())){
-            return "redirect:/toLoginPage?error";
+            return new FailResult<>("用户名或密码不正确");
         }
         //判断是否禁用
         if(!userDetails.isEnabled()){
-            return "redirect:/toLoginPage?error";
+            return new FailResult<>("账号被禁用.请联系管理员");
         }
         /*
          * 更新security登录用户对象
@@ -96,7 +110,6 @@ public class CustomerServiceImpl extends ServiceImpl<CustomerMapper, Customer>
          *
          * security的全局里面
          */
-        
         UsernamePasswordAuthenticationToken authenticationToken= new UsernamePasswordAuthenticationToken
                 (userDetails,null,userDetails.getAuthorities());
         //上下文持有人
@@ -115,7 +128,6 @@ public class CustomerServiceImpl extends ServiceImpl<CustomerMapper, Customer>
         tokenMap.put("token",token);
         //头部信息也返回去前端，让他放在请求头里面
         tokenMap.put("tokenHead",tokenHead);
-        request.setAttribute("token", tokenHead+token);
-        return "redirect:/";
+        return new SuccessResult<>( "登陆成功", tokenMap);
     }
 }

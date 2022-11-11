@@ -3,6 +3,7 @@ package pers.zitianqiong.utils;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
@@ -18,6 +19,7 @@ import java.util.Map;
  * @date 2022/11/2
  */
 @Component
+@Slf4j
 public class JwtTokenUtil {
     
     //荷载 用户名的key
@@ -59,7 +61,6 @@ public class JwtTokenUtil {
      *
      * 按键盘上 CTRL +ALT + t  快捷键
      */
-    
     public String getUserNameFromToken(String token){
         String username=null;
         try {
@@ -68,7 +69,8 @@ public class JwtTokenUtil {
             //拿到荷载，通过荷载拿到登录用户名
             username = claims.getSubject();
         } catch (Exception e) {
-            username=null;
+            log.error("token非法",e);
+            throw new RuntimeException("token非法");
         }
         return username;
         
@@ -79,7 +81,6 @@ public class JwtTokenUtil {
      * @param token
      * @return
      */
-    
     private Claims getClaimsFromToken(String token) {
         Claims claims=null;
         try {

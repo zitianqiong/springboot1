@@ -6,6 +6,9 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import pers.zitianqiong.common.Result;
@@ -18,6 +21,7 @@ import pers.zitianqiong.utils.RedisUtil;
 import pers.zitianqiong.vo.DeptVO;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * <p></p>
@@ -30,17 +34,10 @@ import java.util.List;
 public class CustomerController {
 
     private final CustomerService userService;
-
+    private final UserDetailsService userDetailsService;
     private final RedisUtil redisUtil;
-    
     private final DeptService deptService;
-
-    /**
-     *
-     * @param message .
-     * @return String message
-     **/
-
+    
     /**
      * @return List<User>
      **/
@@ -52,11 +49,33 @@ public class CustomerController {
             userList = redisUtil.get(series);
         } else {
             userList = userService.list();
-            redisUtil.set("userList", userList);
+            userList.forEach(user -> {
+                user.setPassword(null);
+            });
+            redisUtil.set("userList", userList, 100L, TimeUnit.SECONDS);
         }
         return userList;
     }
-
+    
+    /**
+     * 当前用户
+     * @return User 当前用户
+     **/
+    @GetMapping("/user/info")
+    public UserDetails getUser() {
+        UserDetails principal = (UserDetails)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String username = principal.getUsername();
+        Customer user;
+        if (redisUtil.exists("user:"+username)) {
+            user = redisUtil.get("user:"+username);
+        } else {
+            user = (Customer) userDetailsService.loadUserByUsername(username);
+            user.setPassword(null);
+            redisUtil.set("user:"+username, user, 100L, TimeUnit.SECONDS);
+        }
+        return user;
+    }
+    
     /**
      *
      * @param id .

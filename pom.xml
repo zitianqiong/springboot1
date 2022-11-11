@@ -176,7 +176,7 @@
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>fastjson</artifactId>
-            <version>2.0.16</version>
+            <version>2.0.17</version>
         </dependency>
 
         <dependency>
@@ -230,6 +230,13 @@
             <version>3.9.1</version>
         </dependency>
 
+        <!-- google kaptcha依赖 -->
+        <dependency>
+            <groupId>com.github.axet</groupId>
+            <artifactId>kaptcha</artifactId>
+            <version>0.0.9</version>
+        </dependency>
+
         <!--java8以上需要        -->
         <!--解决Handler dispatch failed;nested exception is java.lang.NoClassDefFoundError: javax/xml/bind/DatatypeConverter-->
         <dependency>
@@ -260,27 +267,26 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <version>2.7.1</version>
             </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-checkstyle-plugin</artifactId>
-                <version>3.1.0</version>
-                <configuration>
-                    <configLocation>
-                        F:\ideaProject\checkstyle.xml
-                    </configLocation>
-                    <suppressionsLocation>checkstyle-suppressions.xml</suppressionsLocation>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>validate</id>
-                        <phase>validate</phase>
-                        <goals>
-                            <goal>check</goal>
-                        </goals>
-                    </execution>
-                </executions>
-
-            </plugin>
+<!--            <plugin>-->
+<!--                <groupId>org.apache.maven.plugins</groupId>-->
+<!--                <artifactId>maven-checkstyle-plugin</artifactId>-->
+<!--                <version>3.1.0</version>-->
+<!--                <configuration>-->
+<!--                    <configLocation>-->
+<!--                        F:\ideaProject\checkstyle.xml-->
+<!--                    </configLocation>-->
+<!--                    <suppressionsLocation>checkstyle-suppressions.xml</suppressionsLocation>-->
+<!--                </configuration>-->
+<!--                <executions>-->
+<!--                    <execution>-->
+<!--                        <id>validate</id>-->
+<!--                        <phase>validate</phase>-->
+<!--                        <goals>-->
+<!--                            <goal>check</goal>-->
+<!--                        </goals>-->
+<!--                    </execution>-->
+<!--                </executions>-->
+<!--            </plugin>-->
         </plugins>
     </build>
 

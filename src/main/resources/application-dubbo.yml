@@ -11,3 +11,21 @@ dubbo:
     #port: 20880 #dubbo服务暴露的端口
   scan:
     base-packages: pers.zitianqiong.service
+
+nacos:
+  discovery:
+    server-addr: 127.0.0.1:8848
+    namespace: 4c677c0f-234d-4472-a808-d861550efa8d
+    register:
+      group-name: dev
+  # ============== nacos-config  ============== #
+  config:
+    server-addr: localhost:8848
+    type: yaml
+    namespace: 4c677c0f-234d-4472-a808-d861550efa8d
+    auto-refresh: true
+    group: dev
+    data-id: springboot.yaml
+    bootstrap:
+      enable: true
+      log-enable: true

@@ -5,7 +5,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
+import pers.zitianqiong.common.JsonResult;
 import pers.zitianqiong.common.Result;
 import pers.zitianqiong.domain.AdminLoginParam;
 import pers.zitianqiong.domain.Customer;
@@ -44,9 +46,14 @@ public class LoginController {
      * 登录之后返回token
      */
     @PostMapping("/login")
-    public String login(AdminLoginParam adminLoginParam, HttpServletRequest request){
+    @ResponseBody
+    public JsonResult<?> login(@RequestBody AdminLoginParam adminLoginParam,
+                               HttpServletRequest request){
         //service层login登录方法
-        return customerService.login(adminLoginParam.getUsername(),adminLoginParam.getPassword(),request);
+        return customerService.login(adminLoginParam.getUsername(),
+                adminLoginParam.getPassword(),
+                adminLoginParam.getCode(),
+                request);
     }
     
     @GetMapping("/customer/info")

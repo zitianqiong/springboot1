@@ -7,10 +7,10 @@
 </head>
 <body>
 <h1 align="center">欢迎进入电影网站首页</h1>
-<div sec:authorize="isAnonymous()">
+<div >
     <h2 align="center">游客您好，如果想查看电影<a th:href="@{/toLoginPage}">请登录</a></h2>
 </div>
-<div sec:authorize="isAuthenticated()">
+<div >
     <h2 align="center"><span sec:authentication="name" style="color: #007bff"></span>您好，您的用户权限为<span sec:authentication="principal.authorities" style="color:darkkhaki"></span>，您有权观看以下电影</h2>
     <form th:action="@{/mylogout}" method="post">
         <input th:type="submit" th:value="注销" />
@@ -18,7 +18,7 @@
 </div>
 <hr>
 
-<div sec:authorize="hasRole('common')">
+<div >
     <h3>普通电影</h3>
     <ul>
         <li><a th:href="@{/detail/common/1}">飞驰人生</a></li>
@@ -26,7 +26,7 @@
     </ul>
 </div>
 
-<div sec:authorize="hasAuthority('ROLE_vip')">
+<div >
     <h3>VIP专享</h3>
     <ul>
         <li><a th:href="@{/detail/vip/1}">速度与激情</a></li>

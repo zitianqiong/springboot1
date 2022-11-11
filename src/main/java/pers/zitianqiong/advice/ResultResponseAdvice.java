@@ -38,7 +38,7 @@ public class ResultResponseAdvice implements ResponseBodyAdvice<Object> {
         }
         final SuccessResult<Object> result = new SuccessResult<>();
         result.setCode(200);
-        result.setMsg("查询成功");
+//        result.setMsg("查询成功");
         result.setData(body);
         if (returnType.getGenericParameterType().equals(String.class)) {// 2
             ObjectMapper objectMapper = new ObjectMapper();

@@ -1,6 +1,7 @@
 package pers.zitianqiong.domain;
 
 import com.baomidou.mybatisplus.annotation.*;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -24,6 +25,7 @@ import java.util.stream.Collectors;
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
 @Data
+@JsonIgnoreProperties({"accountNonExpired", "accountNonLocked", "credentialsNonExpired", "authorities"})
 public class Customer implements Serializable, UserDetails {
     /**
      * 用户id唯一
@@ -69,6 +71,9 @@ public class Customer implements Serializable, UserDetails {
     
     @TableField(exist = false)//告诉mybatis plus 数据库中没有这个自定义的字段
     private List<Authority> roles;
+    
+    @TableField(exist = false)
+    List<SimpleGrantedAuthority> authorities;
 
     /**
      * 是否被删除0：正常，1：删除
@@ -86,9 +91,11 @@ public class Customer implements Serializable, UserDetails {
      */
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
+        if (authorities != null){
+            return authorities;
+        }
         if (roles != null){
-            List<SimpleGrantedAuthority> authorities = roles
-                    .stream()
+            authorities = roles.stream()
                     //将获得的权限名字通过 SimpleGrantedAuthority 转换成授权的 url
                     .map(role -> new SimpleGrantedAuthority(role.getAuthority()))
                     .collect(Collectors.toList());
@@ -106,10 +113,12 @@ public class Customer implements Serializable, UserDetails {
     public boolean isAccountNonLocked() {
         return true;
     }
+    
     @Override
     public boolean isCredentialsNonExpired() {
         return true;
     }
+    
     @Override
     public boolean isEnabled() {
         return enabled;
