@@ -1,21 +1,20 @@
 package pers.zitianqiong.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import java.security.Principal;
+import javax.servlet.http.HttpServletRequest;
+
+import lombok.AllArgsConstructor;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 import pers.zitianqiong.common.JsonResult;
 import pers.zitianqiong.common.Result;
-import pers.zitianqiong.domain.AdminLoginParam;
 import pers.zitianqiong.domain.Customer;
+import pers.zitianqiong.domain.LoginParam;
 import pers.zitianqiong.service.CustomerService;
-
-import javax.servlet.http.HttpServletRequest;
-import java.security.Principal;
-import java.util.Calendar;
 
 /**
  * <p>描述：</p>
@@ -24,50 +23,47 @@ import java.util.Calendar;
  * @date 2022/11/2
  */
 @Controller
+@AllArgsConstructor
 public class LoginController {
     //注入service
-    @Autowired
-    private CustomerService customerService;
-    
-    /**
-     * @param model .
-     * @return String
-     **/
-    @GetMapping("/toLoginPage")
-    public String toLoginPage(String param, Model model) {
-        if ("error".equals(param)){
-            return "error";
-        }
-        model.addAttribute("currentYear", Calendar.getInstance().get(Calendar.YEAR));
-        return "login";
-    }
+    private final CustomerService customerService;
+    private final UserDetailsService userDetailsService;
     
     /**
      * 登录之后返回token
+     * @param loginParam 参数
+     * @param request 请求
+     * @return 响应
      */
     @PostMapping("/login")
     @ResponseBody
-    public JsonResult<?> login(@RequestBody AdminLoginParam adminLoginParam,
-                               HttpServletRequest request){
+    public JsonResult<?> login(@RequestBody LoginParam loginParam,
+                               HttpServletRequest request) {
         //service层login登录方法
-        return customerService.login(adminLoginParam.getUsername(),
-                adminLoginParam.getPassword(),
-                adminLoginParam.getCode(),
+        return customerService.login(loginParam.getUsername(),
+                loginParam.getPassword(),
+                loginParam.getCode(),
                 request);
     }
     
+    /**
+     * 用户信息
+     * @param principal 当前用户
+     * @return 响应
+     */
     @GetMapping("/customer/info")
     @ResponseBody
     public Customer getAdminInfo(Principal principal) {
-        if (null == principal) {
-            return null;
-        }
         String username = principal.getName();
-        Customer customer = customerService.getCustomer(username);
+        Customer customer = (Customer) userDetailsService.loadUserByUsername(username);
         customer.setPassword(null);
         return customer;
     }
     
+    /**
+     * 用户退出
+     * @return 响应
+     */
     @PostMapping("/mylogout")
     @ResponseBody
     public Result logout() {

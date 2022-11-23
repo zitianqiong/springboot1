@@ -7,21 +7,19 @@ mybatis-plus:
   #TypeHandler 扫描路径，如果配置了该属性，SqlSessionFactoryBean 会把该包下面的类注册为对应的 TypeHandler
   type-handlers-package: pers.zitianqiong.handler
   global-config:
-    banner: false
+    banner: true
     #是否初始化 SqlRunner， SqlRunner为SQL增强工具，用于在代码中使用原生SQL
     enable-sql-runner: true
     db-config:
       # 主键类型  auto: 数据库ID自增， none:该类型为未设置主键类型(注解里等于跟随全局,全局里约等于 INPUT)，
       # input:用户输入ID(该类型可以通过自己注册自动填充插件进行填充)，assign-id: 分配ID (主键类型为number或string,雪花算法)，
       # assign-uuid: 分配UUID (主键类型为 string,UUID.replace("-",""))
-      id-type: ASSIGN_UUID
+      id-type: ASSIGN_ID
       # 逻辑删除全局值（默认 1、表示已删除）
       logic-delete-value: 1
       # 逻辑未删除全局值（默认 0、表示未删除）
       logic-not-delete-value: 0
   configuration:
-    #日志输出在控制台,打印sql语句,调试用
-    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
     # 配置的缓存的全局开关
     cache-enabled: true
     map-underscore-to-camel-case: false

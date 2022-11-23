@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5" lang="en">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <title>影视直播厅</title>
@@ -11,7 +11,7 @@
     <h2 align="center">游客您好，如果想查看电影<a th:href="@{/toLoginPage}">请登录</a></h2>
 </div>
 <div >
-    <h2 align="center"><span sec:authentication="name" style="color: #007bff"></span>您好，您的用户权限为<span sec:authentication="principal.authorities" style="color:darkkhaki"></span>，您有权观看以下电影</h2>
+    <h2 align="center"><span style="color: #007bff"></span>您好，您的用户权限为<span style="color:darkkhaki"></span>，您有权观看以下电影</h2>
     <form th:action="@{/mylogout}" method="post">
         <input th:type="submit" th:value="注销" />
     </form>

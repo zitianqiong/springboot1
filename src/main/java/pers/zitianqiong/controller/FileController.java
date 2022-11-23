@@ -7,6 +7,7 @@ import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -22,15 +23,15 @@ import org.springframework.web.multipart.MultipartFile;
  * 文件管理控制类
  */
 @Controller
+@Slf4j
 public class FileController {
-
-    // 向文件上传页面跳转
-    @GetMapping("/toUpload")
-    public String toUpload() {
-        return "upload";
-    }
-
-    // 文件上传管理
+    
+    /**
+     * 文件上传管理
+     * @param fileUpload 文件列表
+     * @param model 视图层
+     * @return 上传页面
+     */
     @PostMapping("/uploadFile")
     public String uploadFile(MultipartFile[] fileUpload, Model model) {
         // 默认文件上传成功，并返回状态信息
@@ -49,7 +50,7 @@ public class FileController {
             try {
                 file.transferTo(new File(dirPath + fileName));
             } catch (Exception e) {
-                e.printStackTrace();
+                log.error("文件上传失败", e);
                 // 上传失败，返回失败信息
                 model.addAttribute("uploadStatus", "上传失败： " + e.getMessage());
             }
@@ -57,12 +58,7 @@ public class FileController {
         // 携带上传状态信息回调到文件上传页面
         return "upload";
     }
-
-    // 向文件下载页面跳转
-    @GetMapping("/toDownload")
-    public String toDownload() {
-        return "download";
-    }
+    
 //    // 文件下载管理
 //    @GetMapping("/download")
 //    public ResponseEntity<byte[]> fileDownload(String filename){
@@ -83,8 +79,14 @@ public class FileController {
 //            return new ResponseEntity<byte[]>(e.getMessage().getBytes(),HttpStatus.EXPECTATION_FAILED);
 //        }
 //    }
-
-    // 所有类型文件下载管理
+    
+    /**
+     * 所有类型文件下载管理
+     * @param request 请求
+     * @param filename 文件名
+     * @return 字节流
+     * @throws Exception 异常
+     */
     @GetMapping("/download")
     public ResponseEntity<byte[]> fileDownload(HttpServletRequest request,
                                                String filename) throws Exception {
@@ -102,12 +104,18 @@ public class FileController {
         try {
             return new ResponseEntity<>(FileUtils.readFileToByteArray(file), headers, HttpStatus.OK);
         } catch (Exception e) {
-            e.printStackTrace();
-            return new ResponseEntity<byte[]>(e.getMessage().getBytes(), HttpStatus.EXPECTATION_FAILED);
+            log.error("文件下载错误", e);
+            return new ResponseEntity<>(e.getMessage().getBytes(), HttpStatus.EXPECTATION_FAILED);
         }
     }
-
-    // 根据浏览器的不同进行编码设置，返回编码后的文件名
+    
+    /**
+     * 根据浏览器的不同进行编码设置，返回编码后的文件名
+     * @param request 请求
+     * @param filename 文件名
+     * @return 文件名
+     * @throws Exception 异常
+     */
     private String getFilename(HttpServletRequest request, String filename)
             throws Exception {
         // IE不同版本User-Agent中出现的关键词
@@ -123,6 +131,5 @@ public class FileController {
         //火狐等其它浏览器统一为ISO-8859-1编码显示
         return new String(filename.getBytes(StandardCharsets.UTF_8), StandardCharsets.ISO_8859_1);
     }
-
-
+    
 }

@@ -1,12 +1,13 @@
 package pers.zitianqiong.config;
 
+import javax.sql.DataSource;
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -19,10 +20,9 @@ import pers.zitianqiong.domain.Customer;
 import pers.zitianqiong.filter.JwtAuthencationTokenFilter;
 import pers.zitianqiong.service.CustomerService;
 
-import javax.sql.DataSource;
-
 /**
  * <p>描述:</p>
+ *
  * @author 丛吉钰
  */
 @Slf4j
@@ -33,14 +33,15 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Lazy
     @Autowired
     private CustomerService customerService;
-
+    
     @Bean
     public PasswordEncoder getPwdEncoder() {
         return new BCryptPasswordEncoder();
     }
-
+    
     /**
      * 用户身份认证自定义配置
+     *
      * @param auth
      * @throws Exception
      */
@@ -49,21 +50,18 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         auth.userDetailsService(userDetailsService()).passwordEncoder(getPwdEncoder());
     }
     
-    @Override
-    public void configure(WebSecurity web) {
-        web.ignoring().antMatchers(
-                "/login","/logout","/css/**","/js/**","/index.html","favicon.ico",
-                "/doc.html","/webjars/**","/v2/api-docs/**","/captcha"
-        );
-    }
-
     @SuppressWarnings("checkstyle:MagicNumber")
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         //关闭csrf验证
         http.csrf().disable();
         http.authorizeRequests()
-                .anyRequest().permitAll().and().logout().permitAll()
+//                .antMatchers(
+//                        "/login","/logout","/css/**","/js/**","/index.html","favicon.ico",
+//                        "/doc.html","/webjars/**","/v2/api-docs/**","/captcha").permitAll()
+                .anyRequest().permitAll()
+                .and()
+                .logout().permitAll()
                 .and()
                 .headers()
                 .cacheControl(); //配置不需要登录验证
@@ -95,20 +93,21 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     
     @Override
     @Bean
-    public UserDetailsService userDetailsService(){
+    public UserDetailsService userDetailsService() {
         return username -> {
             Customer customer = customerService.getCustomer(username);
-            if (customer != null){
+            if (customer != null) {
                 customer.setRoles(customerService.getCustomerAuthority(username));
                 return customer;
-            }else {
+            } else {
                 throw new UsernameNotFoundException("当前用户不存在");
             }
         };
     }
-
+    
     /**
      * 持久化Token存储
+     *
      * @return
      */
     @Bean
@@ -120,7 +119,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     
     //bean注解暴露出来
     @Bean
-    public JwtAuthencationTokenFilter jwtAuthencationTokenFilter(){
+    public JwtAuthencationTokenFilter jwtAuthencationTokenFilter() {
         return new JwtAuthencationTokenFilter();
     }
     

@@ -1,7 +1,7 @@
 package pers.zitianqiong.service;
 
-import pers.zitianqiong.domain.Dept;
 import com.baomidou.mybatisplus.extension.service.IService;
+import pers.zitianqiong.domain.Dept;
 
 /**
 * @author zitianqiong

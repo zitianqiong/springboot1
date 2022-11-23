@@ -14,7 +14,7 @@ import lombok.experimental.Accessors;
 @EqualsAndHashCode(callSuper = false)
 //具体的作用是开启链式编程，让我们写代码更加方便。
 @Accessors(chain = true)
-public class AdminLoginParam {
+public class LoginParam {
     private String username;
     private String password;
     private String code;

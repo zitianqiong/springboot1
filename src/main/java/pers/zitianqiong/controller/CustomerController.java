@@ -1,16 +1,22 @@
 package pers.zitianqiong.controller;
 
+import java.security.Principal;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
 import pers.zitianqiong.common.Result;
 import pers.zitianqiong.domain.Customer;
 import pers.zitianqiong.domain.Dept;
@@ -19,9 +25,6 @@ import pers.zitianqiong.service.CustomerService;
 import pers.zitianqiong.service.DeptService;
 import pers.zitianqiong.utils.RedisUtil;
 import pers.zitianqiong.vo.DeptVO;
-
-import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 /**
  * <p></p>
@@ -32,11 +35,13 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 @RequiredArgsConstructor(onConstructor_ = {@Autowired})
 public class CustomerController {
-
+    
     private final CustomerService userService;
     private final UserDetailsService userDetailsService;
     private final RedisUtil redisUtil;
     private final DeptService deptService;
+    
+    private final long EXPIRE_TIME = 100L;
     
     /**
      * @return List<User>
@@ -52,32 +57,32 @@ public class CustomerController {
             userList.forEach(user -> {
                 user.setPassword(null);
             });
-            redisUtil.set("userList", userList, 100L, TimeUnit.SECONDS);
+            redisUtil.set("userList", userList, EXPIRE_TIME, TimeUnit.SECONDS);
         }
         return userList;
     }
     
     /**
      * 当前用户
+     * @param principal 用户信息
      * @return User 当前用户
      **/
     @GetMapping("/user/info")
-    public UserDetails getUser() {
-        UserDetails principal = (UserDetails)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        String username = principal.getUsername();
+    public UserDetails getUser(Principal principal) {
+//        UserDetails principal = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String username = principal.getName();
         Customer user;
-        if (redisUtil.exists("user:"+username)) {
-            user = redisUtil.get("user:"+username);
+        if (redisUtil.exists("user:" + username)) {
+            user = redisUtil.get("user:" + username);
         } else {
             user = (Customer) userDetailsService.loadUserByUsername(username);
             user.setPassword(null);
-            redisUtil.set("user:"+username, user, 100L, TimeUnit.SECONDS);
+            redisUtil.set("user:" + username, user, EXPIRE_TIME, TimeUnit.SECONDS);
         }
         return user;
     }
     
     /**
-     *
      * @param id .
      * @return User 用户
      **/
@@ -86,38 +91,26 @@ public class CustomerController {
     public Customer postUser(int id) {
         return userService.getById(id);
     }
-
+    
     /**
-     *
+     * 删除缓存
      **/
     @GetMapping("/evict")
     @CacheEvict(value = "userList", key = "'deletedUser'+#id")
     public void evict() {
         log.info("Evicting");
     }
-
-    /**
-     * @return String
-     **/
-    @DeleteMapping("/user")
-    public String deleteUser() {
-        return "delete";
-    }
-
-    /**
-     * @return String
-     **/
-    //nametest
-    @PutMapping("/user")
-    public String putUser() {
-        return "put";
-    }
     
+    /**
+     *
+     * @param deptVO 部门
+     * @return 响应
+     */
     @PostMapping("dept")
-    public Result dept(@Validated @RequestBody DeptVO deptVO){
+    public Result dept(@Validated @RequestBody DeptVO deptVO) {
         deptVO.setStuts(Stuts.NORMAL);
         Dept dept = new Dept();
-        BeanUtils.copyProperties(deptVO,dept);
+        BeanUtils.copyProperties(deptVO, dept);
         deptService.save(dept);
         return Result.success();
     }

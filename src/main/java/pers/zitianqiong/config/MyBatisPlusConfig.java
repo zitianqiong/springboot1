@@ -30,10 +30,8 @@ public class MyBatisPlusConfig {
      * 乐观锁: OptimisticLockerInnerInterceptor
      * sql性能规范: IllegalSQLInnerInterceptor
      * 防止全表更新与删除: BlockAttackInnerInterceptor
-     */
-    /**
      * @return MybatisPlusInterceptor
-     **/
+     */
     @Bean
     public MybatisPlusInterceptor mybatisPlusInterceptor() {
         MybatisPlusInterceptor mybatisPlusInterceptor = new MybatisPlusInterceptor();
@@ -41,5 +39,5 @@ public class MyBatisPlusConfig {
         mybatisPlusInterceptor.addInnerInterceptor(new PaginationInnerInterceptor(DbType.H2));
         return mybatisPlusInterceptor;
     }
-
+    
 }

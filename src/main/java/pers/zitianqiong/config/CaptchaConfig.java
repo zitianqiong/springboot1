@@ -1,11 +1,11 @@
 package pers.zitianqiong.config;
 
+import java.util.Properties;
+
 import com.google.code.kaptcha.impl.DefaultKaptcha;
 import com.google.code.kaptcha.util.Config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import java.util.Properties;
 
 /**
  * 验证码配置类
@@ -14,9 +14,9 @@ import java.util.Properties;
 public class CaptchaConfig {
     
     @Bean
-    public DefaultKaptcha getDefaultKaptcha(){
+    public DefaultKaptcha getDefaultKaptcha() {
         //验证码生成器
-        DefaultKaptcha defaultKaptcha=new DefaultKaptcha();
+        DefaultKaptcha defaultKaptcha = new DefaultKaptcha();
         //配置
         Properties properties = new Properties();
         //是否有边框
@@ -26,7 +26,7 @@ public class CaptchaConfig {
         //边框粗细度，默认为1
         // properties.setProperty("kaptcha.border.thickness","1");
         //验证码
-        properties.setProperty("kaptcha.session.key","code");
+        properties.setProperty("kaptcha.session.key", "code");
         //验证码文本字符颜色 默认为黑色
         properties.setProperty("kaptcha.textproducer.font.color", "blue");
         //设置字体样式

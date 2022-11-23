@@ -1,16 +1,17 @@
 package pers.zitianqiong.common;
 
-import com.alibaba.fastjson.annotation.JSONField;
-import lombok.Data;
-
 import java.io.Serializable;
 import java.util.List;
+
+import com.alibaba.fastjson.annotation.JSONField;
+import lombok.Data;
 
 /**
  * @author 丛吉钰
  * @version 1.0
  * @className JsonResult
  * @date 2021/12/3
+ * @param <T> 类型
  */
 @Data
 public class JsonResult<T> implements Serializable {

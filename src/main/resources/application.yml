@@ -32,6 +32,8 @@ spring:
     multipart:
       max-file-size: 10MB
       max-request-size: 50MB
+  banner:
+    location: classpath:banner.txt
 jwt:
   # JWT存储的请求头
   tokenHeader: Authorization

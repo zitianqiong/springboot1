@@ -2,6 +2,9 @@ package pers.zitianqiong.domain;
 
 import lombok.Getter;
 
+/**
+ * 数据状态枚举类
+ */
 @Getter
 public enum Stuts {
     /**

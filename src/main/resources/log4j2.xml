@@ -33,18 +33,18 @@
 			%m : 日志内容，即 logger.info("message") %n : 换行符 %C : Java类名 %L : 日志输出所在行数 %M
 			: 日志输出所在方法名 -->
 
-		<!--这个输出控制台的配置，这里输出除了warn和error级别的信息到System.out -->
+		<!--这个输出控制台的配置，这里输出warn和info级别的信息到System.out -->
 		<Console name="console_out_appender" target="SYSTEM_OUT" follow="true">
 			<!-- 控制台只输出level及以上级别的信息(onMatch),其他的直接拒绝(onMismatch) -->
-			<ThresholdFilter level="warn"
-				onMatch="deny" onMismatch="neutral" />
+			<LevelRangeFilter maxLevel="info" minLevel="${LOG.LEVEL.CONSOLE.PRINT}"
+				onMatch="accept" onMismatch="deny" />
 			<!-- 输出日志的格式 -->
 			<PatternLayout pattern="${sys:CONSOLE_LOG_PATTERN}" />
 		</Console>
 		<!--这个输出控制台的配置，这里输出error级别的信息到System.err，在eclipse控制台上看到的是红色文字 -->
 		<Console name="console_err_appender" target="system_err">
 			<!-- 控制台只输出level及以上级别的信息(onMatch),其他的直接拒绝(onMismatch) -->
-			<ThresholdFilter level="error"
+			<ThresholdFilter level="${LOG.LEVEL.CONSOLE.ERROR}"
 				onMatch="accept" onMismatch="deny" />
 			<!-- 输出日志的格式 -->
 			<PatternLayout pattern="${sys:CONSOLE_LOG_PATTERN}" />
@@ -250,7 +250,7 @@
 
 	<Loggers>
 		<!-- 配置日志的根节点 -->
-		<Root level="ALL">
+		<Root level="debug">
 			<AppenderRef ref="console_out_appender" />
 			<AppenderRef ref="console_err_appender" />
 			<AppenderRef ref="trace_appender" />
@@ -261,18 +261,21 @@
 		</Root>
 
 		<!-- 第三方日志系统 -->
-		<Logger name="org.springframework.core" level="info" />
-		<Logger name="org.springframework.beans" level="info" />
-		<Logger name="org.springframework.context" level="info" />
-		<Logger name="org.springframework.web" level="info" />
+		<Logger name="org.springframework" level="debug" />
+		<logger name="org.springframework.core" level="info" />
+		<logger name="org.springframework.beans" level="info" />
+		<logger name="org.springframework.context" level="info" />
+		<logger name="org.springframework.web" level="info" />
 		<Logger name="org.jboss.netty" level="warn" />
 		<Logger name="org.apache.http" level="warn" />
+		<Logger name="org.jasig" level="info" />
+		<Logger name="org.hibernate" level="error" />
+		<logger name="org.mybatis" level="INFO" />
+		<logger name="com.alibaba.druid" level="info" />
 		<Logger name="com.mongodb" level="debug" />
 		<Logger name="com.sgcc" level="debug" />
 		<Logger name="com.sgcc.isc" level="debug" />
 		<Logger name="org.jasig" level="debug" />
-		<Logger name="org.hibernate" level="error" />
-		<logger name="org.mybatis" level="INFO" />
 
 		<!-- 系统监控日志配置 -->
 		<Logger name="accessLogger" level="debug" additivity="false">

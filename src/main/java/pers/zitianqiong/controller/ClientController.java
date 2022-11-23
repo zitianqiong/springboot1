@@ -1,23 +1,27 @@
 package pers.zitianqiong.controller;
 
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.RestController;
+
 /**
- * <p>描述:</p>
+ * <p>描述: nacos客户端</p>
  * @author 丛吉钰
- *//*
+ */
 @CrossOrigin
 @RestController
+@Deprecated
 public class ClientController {
 
-    @Autowired
+   /* @Autowired
     private RestTemplate restTemplate;
     @NacosInjected
     private NamingService namingService;
 
-    *//**
+    *
      * get方式传参调用nacos服务
      * @param request .
      * @return String
-     **//*
+     *
     @RequestMapping("/getClientValueByGet")
     public String getClientValueByGet(HttpServletRequest request) {
         String serviceName = "server";
@@ -34,11 +38,11 @@ public class ClientController {
         }
     }
 
-    *//**
+    *
      * post方式传参调用nacos服务
      * @param request .
      * @return String
-     **//*
+     *
     @RequestMapping("/getClientValueByPost")
     public String getClientValueByPost(HttpServletRequest request) {
         String serviceName = "server";
@@ -61,6 +65,5 @@ public class ClientController {
         } catch (Exception e) {
             return "";
         }
-    }
+    }*/
 }
-*/

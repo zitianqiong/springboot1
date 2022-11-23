@@ -1,5 +1,14 @@
 package pers.zitianqiong.utils;
 
+import java.awt.*;
+import java.awt.geom.RoundRectangle2D;
+import java.awt.image.BufferedImage;
+import java.io.*;
+import java.util.HashMap;
+import java.util.Hashtable;
+import javax.imageio.ImageIO;
+import javax.servlet.ServletOutputStream;
+
 import cn.hutool.core.codec.Base64;
 import com.google.zxing.*;
 import com.google.zxing.client.j2se.BufferedImageLuminanceSource;
@@ -8,16 +17,8 @@ import com.google.zxing.common.BitMatrix;
 import com.google.zxing.common.HybridBinarizer;
 import com.google.zxing.qrcode.QRCodeWriter;
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-
-import javax.imageio.ImageIO;
-import javax.servlet.ServletOutputStream;
-import java.awt.*;
-import java.awt.geom.RoundRectangle2D;
-import java.awt.image.BufferedImage;
-import java.io.*;
-import java.util.HashMap;
-import java.util.Hashtable;
 
 /**
  * <p>描述：二维码生成工具类</p>
@@ -25,7 +26,8 @@ import java.util.Hashtable;
  * @author 丛吉钰
  * @date 2022/11/1
  */
-public class QrCodeUtils {
+@Slf4j
+public final class QrCodeUtil {
     private static final String CHARSET = "utf-8";
     public static final String FORMAT = "JPG";
     // 二维码尺寸
@@ -34,6 +36,10 @@ public class QrCodeUtils {
     private static final int LOGO_WIDTH = 60;
     // LOGO高度
     private static final int LOGO_HEIGHT = 60;
+    
+    private QrCodeUtil(){
+    
+    }
     
     /**
      * 生成二维码
@@ -63,7 +69,7 @@ public class QrCodeUtils {
             return image;
         }
         // 插入图片
-        QrCodeUtils.insertImage(image, logoPath, needCompress);
+        QrCodeUtil.insertImage(image, logoPath, needCompress);
         return image;
     }
     
@@ -73,7 +79,7 @@ public class QrCodeUtils {
      * @param source       二维码图片
      * @param logoPath     LOGO图片地址
      * @param needCompress 是否压缩
-     * @throws IOException 异常
+     * @throws Exception 异常
      */
     private static void insertImage(BufferedImage source, String logoPath,
                                     boolean needCompress) throws Exception {
@@ -122,7 +128,7 @@ public class QrCodeUtils {
      * @throws Exception 异常
      */
     public static void encode(String content, String imgPath, String destPath, boolean needCompress) throws Exception {
-        BufferedImage image = QrCodeUtils.createImage(content, imgPath, needCompress);
+        BufferedImage image = QrCodeUtil.createImage(content, imgPath, needCompress);
         mkdirs(destPath);
         // String file = new Random().nextInt(99999999)+".jpg";
         // ImageIO.write(image, FORMAT_NAME, new File(destPath+"/"+file));
@@ -139,9 +145,13 @@ public class QrCodeUtils {
      * @throws Exception 异常
      */
     public static BufferedImage encode(String content, String imgPath, boolean needCompress) throws Exception {
-        return QrCodeUtils.createImage(content, imgPath, needCompress);
+        return QrCodeUtil.createImage(content, imgPath, needCompress);
     }
     
+    /**
+     * 生成路径
+     * @param destPath 文件路径
+     */
     public static void mkdirs(String destPath) {
         File file = new File(destPath);
         // 当文件夹不存在时，mkdirs会自动创建多层目录，区别于mkdir．(mkdir如果父目录不存在则会抛出异常)
@@ -161,7 +171,7 @@ public class QrCodeUtils {
      */
     public static void encode(String content, String logoPath, OutputStream output, boolean needCompress)
             throws Exception {
-        BufferedImage image = QrCodeUtils.createImage(content, logoPath, needCompress);
+        BufferedImage image = QrCodeUtil.createImage(content, logoPath, needCompress);
         ImageIO.write(image, FORMAT, output);
     }
     
@@ -172,7 +182,7 @@ public class QrCodeUtils {
      * @return 文件流
      */
     public static InputStream getResourceAsStream(String logoPath) {
-        return QrCodeUtils.class.getResourceAsStream(logoPath);
+        return QrCodeUtil.class.getResourceAsStream(logoPath);
     }
     
     /**
@@ -205,9 +215,17 @@ public class QrCodeUtils {
      * @throws Exception 异常
      */
     public static String decode(String path) throws Exception {
-        return QrCodeUtils.decode(new File(path));
+        return QrCodeUtil.decode(new File(path));
     }
     
+    /**
+     * 生成二维码
+     * @param content 内容
+     * @param width 宽度
+     * @param height 高度
+     * @return 二维码
+     * @throws IOException 异常
+     */
     public static String crateQRCode(String content, int width, int height) throws IOException {
         String resultImage;
         if (!StringUtils.isEmpty(content)) {
@@ -229,23 +247,17 @@ public class QrCodeUtils {
                 resultImage = "data:image/png;base64," + Base64.encode(os.toByteArray());
                 return resultImage;
             } catch (Exception e) {
-                e.printStackTrace();
-            } finally {
-                if (stream != null) {
-                    stream.flush();
-                    stream.close();
-                }
+                log.error("错误", e);
             }
         }
         return null;
     }
     
     //测试一：
-    public static void main(String[] args) throws Exception {
+    /*public static void main(String[] args) throws Exception {
         String text = "kfc_crazy_thursday_vme50";
         String logoPath = "D:\\桌面\\logo.jpg";
         String destPath = "D:\\桌面\\csdn.jpg";
-        QrCodeUtils.encode(text, null, destPath, true);
-        System.out.println(QrCodeUtils.decode(destPath));
-    }
+        QrCodeUtil.encode(text, null, destPath, true);
+    }*/
 }

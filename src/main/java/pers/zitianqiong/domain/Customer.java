@@ -1,5 +1,11 @@
 package pers.zitianqiong.domain;
 
+import java.io.Serializable;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import com.baomidou.mybatisplus.annotation.*;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AccessLevel;
@@ -11,14 +17,9 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.io.Serializable;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.stream.Collectors;
-
 /**
  * 用户表
+ *
  * @TableName customer
  */
 @TableName(value = "customer")
@@ -32,34 +33,34 @@ public class Customer implements Serializable, UserDetails {
      */
     @TableId(type = IdType.AUTO)
     private Integer id;
-
+    
     /**
      * 昵称
      */
     private String username;
-
+    
     /**
      * 密码
      */
     private String password;
-
+    
     /**
      * 年龄
      */
     private Integer age;
-
+    
     /**
      * 创建时间
      */
     @TableField("create_time")
     private Date createTime;
-
+    
     /**
      * 更新时间
      */
     @TableField("update_time")
     private Date updateTime;
-
+    
     /**
      * 乐观锁版本
      */
@@ -74,13 +75,13 @@ public class Customer implements Serializable, UserDetails {
     
     @TableField(exist = false)
     List<SimpleGrantedAuthority> authorities;
-
+    
     /**
      * 是否被删除0：正常，1：删除
      */
     @TableLogic
     private Integer deleted;
-
+    
     @TableField(exist = false)
     private static final long serialVersionUID = -116846212116874336L;
     
@@ -91,10 +92,10 @@ public class Customer implements Serializable, UserDetails {
      */
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        if (authorities != null){
+        if (authorities != null) {
             return authorities;
         }
-        if (roles != null){
+        if (roles != null) {
             authorities = roles.stream()
                     //将获得的权限名字通过 SimpleGrantedAuthority 转换成授权的 url
                     .map(role -> new SimpleGrantedAuthority(role.getAuthority()))

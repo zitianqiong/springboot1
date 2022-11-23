@@ -1,24 +1,25 @@
 package pers.zitianqiong.utils;
 
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.*;
-import org.springframework.stereotype.Service;
-
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.*;
+import org.springframework.stereotype.Service;
+
 
 /**
  * <p>redis-util</p>
+ *
  * @author 丛吉钰
  */
 @Slf4j
 @Service
-@SuppressWarnings(value = { "unchecked", "rawtypes" })
+@SuppressWarnings(value = {"unchecked", "rawtypes"})
 public class RedisUtil {
     @Autowired
     private RedisTemplate redisTemplate;
@@ -26,8 +27,10 @@ public class RedisUtil {
     /**
      * 缓存基本的对象，Integer、String、实体类等
      *
-     * @param key 缓存的键值
+     * @param <T> 数据类型
+     * @param key   缓存的键值
      * @param value 缓存的值
+     * @return boolean
      */
     public <T> boolean set(final String key, final T value) {
         boolean result = false;
@@ -39,9 +42,10 @@ public class RedisUtil {
         }
         return result;
     }
-
+    
     /**
      * 写入缓存设置时效时间
+     *
      * @param key        .
      * @param value      .
      * @param expireTime .
@@ -63,30 +67,29 @@ public class RedisUtil {
     /**
      * 设置有效时间
      *
-     * @param key Redis键
+     * @param key     Redis键
      * @param timeout 超时时间
      * @return true=设置成功；false=设置失败
      */
-    public boolean expire(final String key, final long timeout)
-    {
+    public boolean expire(final String key, final long timeout) {
         return expire(key, timeout, TimeUnit.SECONDS);
     }
     
     /**
      * 设置有效时间
      *
-     * @param key Redis键
+     * @param key     Redis键
      * @param timeout 超时时间
-     * @param unit 时间单位
+     * @param unit    时间单位
      * @return true=设置成功；false=设置失败
      */
-    public boolean expire(final String key, final long timeout, final TimeUnit unit)
-    {
+    public boolean expire(final String key, final long timeout, final TimeUnit unit) {
         return Boolean.TRUE.equals(redisTemplate.expire(key, timeout, unit));
     }
     
     /**
      * 批量删除对应的value
+     *
      * @param keys .
      */
     public void remove(final String... keys) {
@@ -94,9 +97,10 @@ public class RedisUtil {
             remove(key);
         }
     }
-
+    
     /**
      * 批量删除key
+     *
      * @param pattern .
      */
     public void removePattern(final String pattern) {
@@ -105,9 +109,10 @@ public class RedisUtil {
             redisTemplate.delete(keys);
         }
     }
-
+    
     /**
      * 删除对应的value
+     *
      * @param key .
      */
     public void remove(final String key) {
@@ -120,22 +125,21 @@ public class RedisUtil {
      * 删除集合对象
      *
      * @param collection 多个对象
-     * @return
+     * @return 删除了多少个对象
      */
-    public long remove(final Collection collection)
-    {
+    public long remove(final Collection collection) {
         return redisTemplate.delete(collection);
     }
     
     /**
      * 缓存List数据
      *
-     * @param key 缓存的键值
+     * @param <T> 数据类型
+     * @param key      缓存的键值
      * @param dataList 待缓存的List数据
      * @return 缓存的对象
      */
-    public <T> long setCacheList(final String key, final List<T> dataList)
-    {
+    public <T> long setCacheList(final String key, final List<T> dataList) {
         Long count = redisTemplate.opsForList().rightPushAll(key, dataList);
         return count == null ? 0 : count;
     }
@@ -143,16 +147,17 @@ public class RedisUtil {
     /**
      * 获得缓存的list对象
      *
+     * @param <T> 数据类型
      * @param key 缓存的键值
      * @return 缓存键值对应的数据
      */
-    public <T> List<T> getCacheList(final String key)
-    {
+    public <T> List<T> getCacheList(final String key) {
         return redisTemplate.opsForList().range(key, 0, -1);
     }
     
     /**
      * 判断缓存中是否有对应的value
+     *
      * @param key .
      * @return .
      */
@@ -163,6 +168,7 @@ public class RedisUtil {
     /**
      * 获得缓存的基本对象。
      *
+     * @param <T> 数据类型
      * @param key 缓存键值
      * @return 缓存键值对应的数据
      */
@@ -170,9 +176,10 @@ public class RedisUtil {
         ValueOperations<Serializable, T> operations = redisTemplate.opsForValue();
         return operations.get(key);
     }
-
+    
     /**
      * 哈希 添加
+     *
      * @param key     .
      * @param value   .
      * @param hashKey .
@@ -181,9 +188,10 @@ public class RedisUtil {
         HashOperations<String, Object, Object> hash = redisTemplate.opsForHash();
         hash.put(key, hashKey, value);
     }
-
+    
     /**
      * 哈希获取数据
+     *
      * @param key     .
      * @param hashKey .
      * @return .
@@ -192,9 +200,10 @@ public class RedisUtil {
         HashOperations<String, Object, Object> hash = redisTemplate.opsForHash();
         return hash.get(key, hashKey);
     }
-
+    
     /**
      * 列表添加
+     *
      * @param k .
      * @param v .
      */
@@ -202,9 +211,10 @@ public class RedisUtil {
         ListOperations<String, Object> list = redisTemplate.opsForList();
         list.rightPush(k, v);
     }
-
+    
     /**
      * 列表获取
+     *
      * @param k  .
      * @param l  .
      * @param l1 .
@@ -214,9 +224,10 @@ public class RedisUtil {
         ListOperations<String, Object> list = redisTemplate.opsForList();
         return list.range(k, l, l1);
     }
-
+    
     /**
      * 集合添加
+     *
      * @param key   .
      * @param value .
      */
@@ -224,9 +235,10 @@ public class RedisUtil {
         SetOperations<String, Object> set = redisTemplate.opsForSet();
         set.add(key, value);
     }
-
+    
     /**
      * 集合获取
+     *
      * @param key .
      * @return .
      */
@@ -234,9 +246,10 @@ public class RedisUtil {
         SetOperations<String, Object> set = redisTemplate.opsForSet();
         return set.members(key);
     }
-
+    
     /**
      * 有序集合添加
+     *
      * @param key    .
      * @param value  .
      * @param scoure .
@@ -245,9 +258,10 @@ public class RedisUtil {
         ZSetOperations<String, Object> zset = redisTemplate.opsForZSet();
         zset.add(key, value, scoure);
     }
-
+    
     /**
      * 有序集合获取
+     *
      * @param key     .
      * @param scoure  .
      * @param scoure1 .

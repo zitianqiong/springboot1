@@ -28,4 +28,7 @@ spring:
         max-active: 10
     # 连接超时时间（毫秒）
     timeout: 5000
-
+mybatis-plus:
+  configuration:
+    #日志输出在控制台,打印sql语句,调试用
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl

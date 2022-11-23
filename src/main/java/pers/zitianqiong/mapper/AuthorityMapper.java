@@ -1,7 +1,7 @@
 package pers.zitianqiong.mapper;
 
-import pers.zitianqiong.domain.Authority;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import pers.zitianqiong.domain.Authority;
 
 /**
  * @Entity pers.zitianqiong.domain.Authority

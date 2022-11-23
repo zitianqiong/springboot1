@@ -21,4 +21,12 @@ public class HelloController {
     public String hello() {
         return "hello spring boot";
     }
+    
+    /**
+     * @return String
+     **/
+    @GetMapping("")
+    public String index() {
+        return "index";
+    }
 }

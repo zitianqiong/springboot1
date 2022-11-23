@@ -1,5 +1,19 @@
 package pers.zitianqiong.filter;
 
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
+import java.util.Enumeration;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebFilter;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -7,8 +21,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
@@ -19,20 +31,6 @@ import org.springframework.web.util.ContentCachingRequestWrapper;
 import org.springframework.web.util.ContentCachingResponseWrapper;
 import org.springframework.web.util.WebUtils;
 
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.annotation.WebFilter;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
-import java.util.Enumeration;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 /**
  * <p>描述：</p>
  *
@@ -42,20 +40,28 @@ import java.util.Set;
 @WebFilter(filterName = "accessLogFilter", urlPatterns = "/*")
 @Slf4j
 public class AccessLogFilter extends OncePerRequestFilter {
-    private static final Logger logger = LoggerFactory.getLogger(AccessLogFilter.class);
     private Set<String> excludeUris = Sets.newHashSet();
     private static final PathMatcher URI_PATH_MATCHER = new AntPathMatcher();
     private static final List<String> DEFAULT_DOWNLOAD_CONTENT_TYPE = Lists.newArrayList(
-            "application/vnd.ms-excel",//.xls
-            "application/msexcel",//.xls
-            "application/cvs",//.cvs
-            MediaType.APPLICATION_OCTET_STREAM_VALUE,//.*（ 二进制流，不知道下载文件类型）
-            "application/x-xls",//.xls
-            "application/msword",//.doc
-            MediaType.TEXT_PLAIN_VALUE,//.txt
-            "application/x-gzip"//.gz
+            "application/vnd.ms-excel", //.xls
+            "application/msexcel", //.xls
+            "application/cvs", //.cvs
+            MediaType.APPLICATION_OCTET_STREAM_VALUE, //.*（ 二进制流，不知道下载文件类型）
+            "application/x-xls", //.xls
+            "application/msword", //.doc
+            MediaType.TEXT_PLAIN_VALUE, //.txt
+            "application/x-gzip" //.gz
     );
-
+    
+    /**
+     * 过来uri
+     *
+     * @param request     请求
+     * @param response    响应
+     * @param filterChain 过滤
+     * @throws ServletException 服务异常
+     * @throws IOException      io异常
+     */
     @Override
     protected void doFilterInternal(final HttpServletRequest request,
                                     final HttpServletResponse response,
@@ -66,19 +72,23 @@ public class AccessLogFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
             return;
         }
-
+        
         final String requestMethod = request.getMethod();
         final boolean shouldWrapMethod = StringUtils.equalsIgnoreCase(requestMethod, HttpMethod.PUT.name())
                 || StringUtils.equalsIgnoreCase(requestMethod, HttpMethod.POST.name());
-
+        
         final boolean isFirstRequest = !isAsyncDispatch(request);
-
-        final boolean shouldWrapRequest = isFirstRequest && !(request instanceof ContentCachingRequestWrapper) && shouldWrapMethod;
+        
+        final boolean shouldWrapRequest = isFirstRequest
+                && !(request instanceof ContentCachingRequestWrapper)
+                && shouldWrapMethod;
         final HttpServletRequest requestToUse = shouldWrapRequest ? new ContentCachingRequestWrapper(request) : request;
-
-        final boolean shouldWrapResponse = !(response instanceof ContentCachingResponseWrapper) && shouldWrapMethod;
-        final HttpServletResponse responseToUse = shouldWrapResponse ? new ContentCachingResponseWrapper(response) : response;
-
+        
+        final boolean shouldWrapResponse = !(response instanceof ContentCachingResponseWrapper)
+                && shouldWrapMethod;
+        final HttpServletResponse responseToUse = shouldWrapResponse
+                ? new ContentCachingResponseWrapper(response) : response;
+        
         final long startTime = System.currentTimeMillis();
         Throwable t = null;
         try {
@@ -90,7 +100,15 @@ public class AccessLogFilter extends OncePerRequestFilter {
             doSaveAccessLog(requestToUse, responseToUse, System.currentTimeMillis() - startTime, t);
         }
     }
-
+    
+    /**
+     * 保存日志
+     *
+     * @param request  请求
+     * @param response 响应
+     * @param useTime  时间
+     * @param t        异常
+     */
     private void doSaveAccessLog(final HttpServletRequest request,
                                  final HttpServletResponse response,
                                  final long useTime,
@@ -107,24 +125,29 @@ public class AccessLogFilter extends OncePerRequestFilter {
             final String requestString = isUpload(request) ? StringUtils.EMPTY : getRequestString(request);
             final String responseString = isDownload(response) ? StringUtils.EMPTY : getResponseString(response);
             final int responseStatus = response.getStatus();
-
+            
             final List<String> logs = Lists.newArrayList();
-            logs.add("ip:{" + requestIp+"}");
-            logs.add("uri:{" + requestUri+"}");
+            logs.add("ip:{" + requestIp + "}");
+            logs.add("uri:{" + requestUri + "}");
 //            logs.add("headers=" + requestHeaders);
             logs.add("状态=" + responseStatus);
-            if (request.getContentType() != null)
+            if (request.getContentType() != null) {
                 logs.add("请求类型:" + request.getContentType());
-            if (response.getContentType() != null)
+            }
+            if (response.getContentType() != null) {
                 logs.add("响应类型:" + response.getContentType());
-            if (StringUtils.isNotEmpty(requestParams))
-                logs.add("参数:{" + requestParams+"}");
-            if (StringUtils.isNotEmpty(requestString))
+            }
+            if (StringUtils.isNotEmpty(requestParams)) {
+                logs.add("参数:{" + requestParams + "}");
+            }
+            if (StringUtils.isNotEmpty(requestString)) {
                 logs.add("请求=" + requestString);
-            if (StringUtils.isNotEmpty(responseString))
+            }
+            if (StringUtils.isNotEmpty(responseString)) {
                 logs.add("响应=" + responseString);
+            }
             logs.add("耗时:" + useTime + "ms");
-
+            
             logger.info(String.join(", ", logs));
         } catch (Throwable e) {
             logger.error("保存访问日志时出现异常", e);
@@ -132,11 +155,17 @@ public class AccessLogFilter extends OncePerRequestFilter {
             copyResponse(response);
         }
     }
-
+    
+    /**
+     * 获得请求ip
+     *
+     * @param request 请求
+     * @return ip
+     */
     private String getRequestIp(final HttpServletRequest request) {
         String ip = request.getHeader("X-Real-IP");
         if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
-            ip = request.getHeader("X-Forwarded-For");// 这是一个可以伪造的头
+            ip = request.getHeader("X-Forwarded-For"); // 这是一个可以伪造的头
             if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
                 ip = request.getRemoteAddr();
             }
@@ -151,7 +180,13 @@ public class AccessLogFilter extends OncePerRequestFilter {
         }
         return ip;
     }
-
+    
+    /**
+     * 获得请求头
+     *
+     * @param request 请求
+     * @return 请求头
+     */
     private String getRequestHeaders(final HttpServletRequest request) {
         final Enumeration<String> headerNames = request.getHeaderNames();
         final List<String> headers = Lists.newArrayList();
@@ -161,7 +196,13 @@ public class AccessLogFilter extends OncePerRequestFilter {
         }
         return '[' + String.join(",", headers) + ']';
     }
-
+    
+    /**
+     * 获得请求参数
+     *
+     * @param request 请求
+     * @return 请求参数
+     */
     private String getRequestParams(final HttpServletRequest request) {
         final Map<String, String[]> requestParams = Maps.newHashMap(request.getParameterMap());
         final List<String> pairs = Lists.newArrayList();
@@ -187,7 +228,13 @@ public class AccessLogFilter extends OncePerRequestFilter {
         }
         return requestParamsStr;
     }
-
+    
+    /**
+     * 是否上传
+     *
+     * @param request 请求
+     * @return boolean
+     */
     private boolean isUpload(final HttpServletRequest request) {
         final String contentType = request.getHeader(HttpHeaders.CONTENT_TYPE);
         if (StringUtils.isBlank(contentType)) {
@@ -195,7 +242,13 @@ public class AccessLogFilter extends OncePerRequestFilter {
         }
         return StringUtils.containsIgnoreCase(contentType, MediaType.MULTIPART_FORM_DATA_VALUE);
     }
-
+    
+    /**
+     * 是否下载
+     *
+     * @param response 请求
+     * @return boolean
+     */
     private boolean isDownload(final HttpServletResponse response) {
         final String contentType = response.getContentType();
         if (StringUtils.isBlank(contentType)) {
@@ -203,9 +256,16 @@ public class AccessLogFilter extends OncePerRequestFilter {
         }
         return DEFAULT_DOWNLOAD_CONTENT_TYPE.stream().anyMatch(it -> StringUtils.equalsIgnoreCase(it, contentType));
     }
-
+    
+    /**
+     * 获得请求
+     *
+     * @param request 请求
+     * @return 请求
+     */
     private String getRequestString(final HttpServletRequest request) {
-        final ContentCachingRequestWrapper wrapper = WebUtils.getNativeRequest(request, ContentCachingRequestWrapper.class);
+        final ContentCachingRequestWrapper wrapper =
+                WebUtils.getNativeRequest(request, ContentCachingRequestWrapper.class);
         if (wrapper != null) {
             try {
                 final byte[] buf = wrapper.getContentAsByteArray();
@@ -216,9 +276,16 @@ public class AccessLogFilter extends OncePerRequestFilter {
         }
         return StringUtils.EMPTY;
     }
-
+    
+    /**
+     * 获得响应
+     *
+     * @param response 响应
+     * @return 响应
+     */
     private String getResponseString(final HttpServletResponse response) {
-        final ContentCachingResponseWrapper wrapper = WebUtils.getNativeResponse(response, ContentCachingResponseWrapper.class);
+        final ContentCachingResponseWrapper wrapper =
+                WebUtils.getNativeResponse(response, ContentCachingResponseWrapper.class);
         if (wrapper != null) {
             final byte[] buf = wrapper.getContentAsByteArray();
 //                return new String(buf, wrapper.getCharacterEncoding()).replaceAll("\n|\r", "");
@@ -226,9 +293,15 @@ public class AccessLogFilter extends OncePerRequestFilter {
         }
         return StringUtils.EMPTY;
     }
-
+    
+    /**
+     * 复制响应
+     *
+     * @param response 响应
+     */
     private void copyResponse(final HttpServletResponse response) {
-        final ContentCachingResponseWrapper wrapper = WebUtils.getNativeResponse(response, ContentCachingResponseWrapper.class);
+        final ContentCachingResponseWrapper wrapper =
+                WebUtils.getNativeResponse(response, ContentCachingResponseWrapper.class);
         if (wrapper != null) {
             try {
                 wrapper.copyBodyToResponse();
@@ -236,7 +309,11 @@ public class AccessLogFilter extends OncePerRequestFilter {
             }
         }
     }
-
+    
+    /**
+     * @param uri 地址
+     * @return boolean
+     */
     private boolean matchExclude(final String uri) {
         if (CollectionUtils.isEmpty(excludeUris)) {
             return false;
@@ -248,7 +325,10 @@ public class AccessLogFilter extends OncePerRequestFilter {
         }
         return false;
     }
-
+    
+    /**
+     * @param excludeUris 地址
+     */
     public void setExcludeUris(final Set<String> excludeUris) {
         this.excludeUris = excludeUris == null ? Sets.newHashSet() : excludeUris;
     }

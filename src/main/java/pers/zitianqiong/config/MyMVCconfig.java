@@ -16,13 +16,19 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 public class MyMVCconfig implements WebMvcConfigurer {
     @Autowired
     private MyInterceptor myInterceptor;
-
+    
+    /**
+     * webmvc配置
+     *
+     * @param builder RestTemplateBuilder
+     * @return RestTemplate
+     */
     @Bean
     public RestTemplate restTemplate(RestTemplateBuilder builder) {
         // Do any additional configuration here
         return builder.build();
     }
-
+    
     // 添加视图管理
     @Override
     public void addViewControllers(ViewControllerRegistry registry) {
@@ -30,13 +36,13 @@ public class MyMVCconfig implements WebMvcConfigurer {
         registry.addViewController("/toLoginPage").setViewName("login");
         registry.addViewController("/login.html").setViewName("login");
     }
-
+    
     // 添加拦截器管理
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(myInterceptor)
                 .addPathPatterns("/**")//所有路径拦截
-                .excludePathPatterns("/login.html");//该路径放行
+                .excludePathPatterns("/login.html"); //该路径放行
     }
-
+    
 }
