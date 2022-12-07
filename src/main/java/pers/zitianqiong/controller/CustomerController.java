@@ -13,16 +13,14 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import pers.zitianqiong.common.Result;
 import pers.zitianqiong.domain.Customer;
 import pers.zitianqiong.domain.Dept;
 import pers.zitianqiong.domain.Stuts;
 import pers.zitianqiong.service.CustomerService;
 import pers.zitianqiong.service.DeptService;
+import pers.zitianqiong.utils.JwtTokenUtil;
 import pers.zitianqiong.utils.RedisUtil;
 import pers.zitianqiong.vo.DeptVO;
 
@@ -34,12 +32,13 @@ import pers.zitianqiong.vo.DeptVO;
 @RestController
 @Slf4j
 @RequiredArgsConstructor(onConstructor_ = {@Autowired})
-public class CustomerController {
+public class       CustomerController {
     
     private final CustomerService userService;
     private final UserDetailsService userDetailsService;
     private final RedisUtil redisUtil;
     private final DeptService deptService;
+    private final JwtTokenUtil jwtTokenUtil;
     
     private final long EXPIRE_TIME = 100L;
     
@@ -115,4 +114,19 @@ public class CustomerController {
         return Result.success();
     }
     
+    /**
+     * 用户退出
+     * @return 响应
+     */
+    @GetMapping("/user/logout")
+    @ResponseBody
+    @CrossOrigin(origins = "*")
+    public Result logout(Principal principal) {
+        if (principal == null){
+            return Result.success("用户已退出");
+        }
+        redisUtil.remove("username:"+principal.getName());
+        log.info("{}用户退出", principal.getName());
+        return Result.success();
+    }
 }

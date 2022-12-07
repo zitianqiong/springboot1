@@ -4,6 +4,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
+
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -28,12 +30,21 @@ public class JwtTokenUtil {
     private static final String CLAIM_KEY_CREATED = "created";
     
     //jwt的秘钥以及失效时间，通过刚刚的配置目录去拿。通过value注解
+    @Value("${jwt.tokenHeader}")
+    private static String tokenHeader;
+    @Value("${jwt.tokenHead}")
+    private static String tokenHead;
     @Value("${jwt.secret}")
     private String secret;
     //失效时间：
     @Value("${jwt.expiration}")
     private Long expiration;
-
+    
+    public static String getToken(HttpServletRequest request){
+        String authHeader = request.getHeader(tokenHeader);
+        return authHeader.substring(tokenHead.length());
+    }
+    
     /*
         1.根据用户名生成token
         2.根据token拿到用户名

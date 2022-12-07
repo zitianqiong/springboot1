@@ -1,23 +1,21 @@
 package pers.zitianqiong.common;
 
 import lombok.AllArgsConstructor;
-import lombok.Getter;
 
 /**
  * 状态代码
  */
-@Getter
 @AllArgsConstructor
-public enum ResultCode {
+public enum ResultCode implements BaseEnum{
     
     /**
      * 成功
      **/
-    SUCCESS(0, "成功"),
+    SUCCESS(200, "成功"),
     /**
      * 失败
      **/
-    FAILURE(-1, "失败"),
+    FAILURE(500, "失败"),
     
     EXCEPTION(201, "未知异常"),
     RUNTIME_EXCEPTION(202, "运行时异常"),
@@ -25,6 +23,8 @@ public enum ResultCode {
     CLASS_CAST_EXCEPTION(204, "类型转换异常"),
     IO_EXCEPTION(205, "IO异常"),
     SYSTEM_EXCEPTION(210, "系统异常"),
+    NOT_LOGIN(401, "未登录"),
+    LACK_OF_AUTHORITY(403, "无权限"),
     NOT_FOUND(404, "Not Found"),
     
     /**
@@ -92,4 +92,18 @@ public enum ResultCode {
     
     private final int code;
     private final String msg;
+    
+    @Override
+    public Integer getCode() {
+        return code;
+    }
+    
+    @Override
+    public String getName() {
+        return msg;
+    }
+    
+    public String getMsg(){
+        return msg;
+    }
 }

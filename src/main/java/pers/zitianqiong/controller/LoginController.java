@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 import pers.zitianqiong.common.JsonResult;
-import pers.zitianqiong.common.Result;
 import pers.zitianqiong.domain.Customer;
 import pers.zitianqiong.domain.LoginParam;
 import pers.zitianqiong.service.CustomerService;
@@ -60,13 +59,4 @@ public class LoginController {
         return customer;
     }
     
-    /**
-     * 用户退出
-     * @return 响应
-     */
-    @PostMapping("/mylogout")
-    @ResponseBody
-    public Result logout() {
-        return Result.success();
-    }
 }

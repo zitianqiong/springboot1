@@ -22,7 +22,7 @@ import pers.zitianqiong.common.ResultCode;
  * @author: 丛吉钰
  * @date: 2022/7/7
  */
-@RestControllerAdvice
+@RestControllerAdvice(basePackages = "pers.zitianqiong.controller")
 @Slf4j
 public class GlobalExceptionAdvice {
     
@@ -34,7 +34,7 @@ public class GlobalExceptionAdvice {
      * @return 错误返回体
      */
     @ExceptionHandler(UsernameNotFoundException.class)
-    public ErrorResult handleUsernameNotFoundException(HttpServletRequest req, SQLException e) {
+    public ErrorResult handleUsernameNotFoundException(SQLException e) {
         return ErrorResult.fail("用户不存在", e);
     }
     

@@ -10,6 +10,7 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -33,6 +34,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Lazy
     @Autowired
     private CustomerService customerService;
+    @Autowired
+    private RestAuthorizationEntryPoint restAuthorizationEntryPoint;
+    @Autowired
+    private RestfulAccessDeniedHandler restfulAccessDeniedHandler;
     
     @Bean
     public PasswordEncoder getPwdEncoder() {
@@ -56,32 +61,23 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         //关闭csrf验证
         http.csrf().disable();
         http.authorizeRequests()
-//                .antMatchers(
-//                        "/login","/logout","/css/**","/js/**","/index.html","favicon.ico",
-//                        "/doc.html","/webjars/**","/v2/api-docs/**","/captcha").permitAll()
+                .antMatchers(
+                        "/login","/logout","/css/**","/js/**","/index.html","favicon.ico",
+                        "/doc.html","/webjars/**","/v2/api-docs/**","/captcha","/swagger-ui/index.html").permitAll()
                 .anyRequest().permitAll()
                 .and()
                 .logout().permitAll()
                 .and()
+                .sessionManagement()
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .and()
                 .headers()
-                .cacheControl(); //配置不需要登录验证
-//        http.authorizeRequests().antMatchers("/").permitAll()
-//                .antMatchers("/login/**").permitAll()
-//                .antMatchers("/detail/common/**").hasRole("common")
-//                .antMatchers("/detail/vip/**").hasRole("vip")
-//                .anyRequest().authenticated()
-//                .and().formLogin();
-        // 自定义用户登录控制
-        http.formLogin()
-                .loginPage("/toLoginPage").permitAll();
-//                .defaultSuccessUrl("/")
-//                .failureUrl("/toLoginPage?error");
+                .cacheControl();
 //        添加jwt 登录授权过滤器
         http.addFilterBefore(jwtAuthencationTokenFilter(), UsernamePasswordAuthenticationFilter.class);
-        // 自定义用户退出控制
-        http.logout()
-                .logoutUrl("/mylogout")
-                .logoutSuccessUrl("/");
+        http.exceptionHandling()
+                .accessDeniedHandler(restfulAccessDeniedHandler)
+                .authenticationEntryPoint(restAuthorizationEntryPoint);
 
 //        // 定制Remember-me记住我功能 学习jwt，关闭此功能
 //        http.rememberMe()

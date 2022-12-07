@@ -14,10 +14,6 @@ spring:
     hiddenmethod:
       filter:
         enabled: true
-  #jackson 格式化时间戳
-  jackson:
-    serialization:
-      write-dates-as-timestamps: true
   #thymeleaf配置
   thymeleaf:
     cache: false #cache: 是否缓存，开发模式下设置为false，避免改了模板还要重启服务器，线上设置为true，可以提高性能。
@@ -43,3 +39,9 @@ jwt:
   expiration: 604800
   # JWT 负载中拿到开头
   tokenHead: Bearer
+# ===== 自定义swagger配置 ===== #
+swagger:
+  application-name: ${spring.application.name}
+  application-version: 1.0
+  application-description: springfox swagger 3
+  try-host: http://localhost:${server.port}

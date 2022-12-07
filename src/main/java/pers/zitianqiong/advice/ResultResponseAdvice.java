@@ -17,7 +17,7 @@ import pers.zitianqiong.common.*;
  * @author 丛吉钰
  * @date 2022/10/31
  */
-@RestControllerAdvice
+@RestControllerAdvice(basePackages = "pers.zitianqiong.controller")
 public class ResultResponseAdvice implements ResponseBodyAdvice<Object> {
     @Override
     public boolean supports(final MethodParameter returnType,

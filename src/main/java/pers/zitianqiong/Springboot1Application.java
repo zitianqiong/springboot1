@@ -32,18 +32,24 @@ public class Springboot1Application {
         String ip = InetAddress.getLocalHost().getHostAddress();
         String port = env.getProperty("server.port");
         String path = env.getProperty("server.servlet.context-path");
+        boolean swagger = Boolean.parseBoolean(env.getProperty("springfox.documentation.swagger-ui.enabled"));
         
         if (path == null) {
             log.info("\n----------------------------------------------------------\n\t"
                     + "系统应用正在运行! 请访问URLs:\n\t"
-                    + "Local: \t\thttp://localhost:" + port + "/\n\t"
+                    + "本地: \t\thttp://localhost:" + port + "/\n\t"
                     + "External: \thttp://" + ip + ":" + port + "/\n"
+                    + (swagger? "\tdoc: \t\thttp://localhost:" + port + "/doc.html\n" : "")
+                    + (swagger? "\tswagger: \thttp://localhost:" + port + "/swagger-ui/\n" : "")
                     + "----------------------------------------------------------");
+            
         } else {
             log.info("\n----------------------------------------------------------\n\t"
                     + "系统应用正在运行! 请访问URLs:\n\t"
-                    + "Local: \t\thttp://localhost:" + port + "/" + path + "/\n\t"
+                    + "本地: \t\thttp://localhost:" + port + "/" + path + "/\n\t"
                     + "External: \thttp://" + ip + ":" + port + "/" + path + "/\n"
+                    + (swagger? "\tdoc: \t\thttp://localhost:" + port + "/" + path + "/doc.html\n" : "")
+                    + (swagger? "\tswagger: \thttp://localhost:" + port + "/" + path + "/swagger-ui/\n" : "")
                     + "----------------------------------------------------------");
         }
         new CountDownLatch(1).await();
