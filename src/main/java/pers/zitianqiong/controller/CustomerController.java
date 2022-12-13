@@ -17,9 +17,10 @@ import org.springframework.web.bind.annotation.*;
 import pers.zitianqiong.common.Result;
 import pers.zitianqiong.domain.Customer;
 import pers.zitianqiong.domain.Dept;
-import pers.zitianqiong.domain.Stuts;
+import pers.zitianqiong.domain.status;
 import pers.zitianqiong.service.CustomerService;
 import pers.zitianqiong.service.DeptService;
+import pers.zitianqiong.service.WebSocketServer;
 import pers.zitianqiong.utils.JwtTokenUtil;
 import pers.zitianqiong.utils.RedisUtil;
 import pers.zitianqiong.vo.DeptVO;
@@ -107,7 +108,7 @@ public class       CustomerController {
      */
     @PostMapping("dept")
     public Result dept(@Validated @RequestBody DeptVO deptVO) {
-        deptVO.setStuts(Stuts.NORMAL);
+        deptVO.setStuts(status.NORMAL);
         Dept dept = new Dept();
         BeanUtils.copyProperties(deptVO, dept);
         deptService.save(dept);
@@ -128,5 +129,10 @@ public class       CustomerController {
         redisUtil.remove("username:"+principal.getName());
         log.info("{}用户退出", principal.getName());
         return Result.success();
+    }
+    
+    @GetMapping("sendMsg")
+    public void sendMsg() {
+        WebSocketServer.sendInfo("test");
     }
 }

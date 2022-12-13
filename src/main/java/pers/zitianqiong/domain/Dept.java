@@ -40,7 +40,7 @@ public class Dept implements Serializable {
     /**
      * 状态
      */
-    private Stuts stuts;
+    private status stuts;
     
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;

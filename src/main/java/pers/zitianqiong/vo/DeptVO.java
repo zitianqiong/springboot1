@@ -7,7 +7,7 @@ import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import pers.zitianqiong.domain.Stuts;
+import pers.zitianqiong.domain.status;
 
 /**
  * <p>描述：</p>
@@ -28,5 +28,5 @@ public class DeptVO {
     /**
      * 状态
      */
-    private Stuts stuts;
+    private status stuts;
 }

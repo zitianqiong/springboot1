@@ -4,9 +4,10 @@ import lombok.Getter;
 
 /**
  * 数据状态枚举类
+ * @author zitianqiong
  */
 @Getter
-public enum Stuts {
+public enum status {
     /**
      * 正常
      */
@@ -18,7 +19,7 @@ public enum Stuts {
     
     private final Integer value;
     
-    Stuts(Integer value) {
+    status(Integer value) {
         this.value = value;
     }
 }
