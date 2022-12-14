@@ -98,7 +98,7 @@ public class SwaggerConfiguration implements WebMvcConfigurer {
                        ant:过滤指定路径:按照按照Spring的AntPathMatcher提供的match方法进行匹配
                        regex:过滤指定路径:按照String的matches方法进行匹配
                  */
-                .paths(PathSelectors.ant("/**"))
+                .paths(PathSelectors.any())
                 .build()
                 .groupName("分组1")
                 // 支持的通讯协议集合

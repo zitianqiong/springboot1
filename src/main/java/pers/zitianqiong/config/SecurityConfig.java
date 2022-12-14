@@ -16,7 +16,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl;
 import pers.zitianqiong.domain.Customer;
 import pers.zitianqiong.filter.JwtAuthencationTokenFilter;
 import pers.zitianqiong.service.CustomerService;
@@ -99,18 +98,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 throw new UsernameNotFoundException("当前用户不存在");
             }
         };
-    }
-    
-    /**
-     * 持久化Token存储
-     *
-     * @return
-     */
-    @Bean
-    public JdbcTokenRepositoryImpl tokenRepository() {
-        JdbcTokenRepositoryImpl jr = new JdbcTokenRepositoryImpl();
-        jr.setDataSource(dataSource);
-        return jr;
     }
     
     //bean注解暴露出来

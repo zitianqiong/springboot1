@@ -19,8 +19,7 @@ import pers.zitianqiong.utils.StringUtils;
  * @author 丛吉钰
  * @date 2022/12/9
  */
-//ServerEncoder 是为了解决编码异常，如果不需要使用sendObject()方法，这个可以忽略，只写value即可
-//userId：地址的111就是这个userId"ws://localhost:8181/wsserver/111"
+//userId：地址的111就是这个userId"ws://localhost:port/ws/111"
 @ServerEndpoint(value = "/ws/{userId}")
 @Component
 @Slf4j
