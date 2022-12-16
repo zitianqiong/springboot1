@@ -29,7 +29,6 @@ public class GlobalExceptionAdvice {
     /**
      * 用户未找到异常
      *
-     * @param req 请求
      * @param e   sql异常
      * @return 错误返回体
      */

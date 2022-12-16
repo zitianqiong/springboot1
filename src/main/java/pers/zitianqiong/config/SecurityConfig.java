@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -16,6 +17,9 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import pers.zitianqiong.domain.Customer;
 import pers.zitianqiong.filter.JwtAuthencationTokenFilter;
 import pers.zitianqiong.service.CustomerService;
@@ -63,7 +67,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(
                         "/login","/logout","/css/**","/js/**","/index.html","favicon.ico",
                         "/doc.html","/webjars/**","/v2/api-docs/**","/captcha","/swagger-ui/index.html").permitAll()
+                .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .anyRequest().permitAll()
+                .and()
+                .cors().configurationSource(configurationSource())
                 .and()
                 .logout().permitAll()
                 .and()
@@ -77,13 +84,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http.exceptionHandling()
                 .accessDeniedHandler(restfulAccessDeniedHandler)
                 .authenticationEntryPoint(restAuthorizationEntryPoint);
-
-//        // 定制Remember-me记住我功能 学习jwt，关闭此功能
-//        http.rememberMe()
-//                .rememberMeParameter("rememberme")
-//                .tokenValiditySeconds(200)//token有效200s
-//                // 对cookie信息进行持久化管理
-//                .tokenRepository(tokenRepository());
     }
     
     @Override
@@ -106,4 +106,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         return new JwtAuthencationTokenFilter();
     }
     
+    // cors配置
+    CorsConfigurationSource configurationSource(){
+        CorsConfiguration corsConfiguration = new CorsConfiguration();
+        corsConfiguration.addAllowedOrigin("*");
+        corsConfiguration.addAllowedHeader("*");
+        corsConfiguration.addAllowedMethod("*");
+        UrlBasedCorsConfigurationSource url = new UrlBasedCorsConfigurationSource();
+        url.registerCorsConfiguration("/**",corsConfiguration);
+        return url;
+    }
 }

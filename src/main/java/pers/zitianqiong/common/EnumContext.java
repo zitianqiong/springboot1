@@ -12,7 +12,7 @@ import pers.zitianqiong.utils.StringUtils;
  * @author 丛吉钰
  * @date 2022/12/5
  */
-public class EnumContext {
+class EnumContext {
     
     /**
      * 枚举集合映射
@@ -21,12 +21,14 @@ public class EnumContext {
     
     /**
      * 初始化枚举map
+     * @param enumClass 。
+     * @param <T> 。
      */
-    private synchronized static <T extends BaseEnum> void initEnumMap(Class<T> enumClass) {
+    private static synchronized <T extends BaseEnum> void initEnumMap(Class<T> enumClass) {
         if (enumClass != null && enumClass.isEnum()) {
             String key = enumClass.getName();
             if (!ENUM_MAP.containsKey(key)) {
-                Map<String, BaseEnum> map = new ConcurrentHashMap<>(16);
+                Map<String, BaseEnum> map = new ConcurrentHashMap<>();
                 BaseEnum[] baseEnums = enumClass.getEnumConstants();
                 if (baseEnums != null) {
                     for (final BaseEnum e : baseEnums) {
