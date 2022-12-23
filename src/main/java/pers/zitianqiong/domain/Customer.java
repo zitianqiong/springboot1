@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 
 import com.baomidou.mybatisplus.annotation.*;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -27,6 +28,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 @Accessors(chain = true)
 @Data
 @JsonIgnoreProperties({"accountNonExpired", "accountNonLocked", "credentialsNonExpired", "authorities"})
+@Schema(name = "Customer", description = "用户")
 public class Customer implements Serializable, UserDetails {
     /**
      * 用户id唯一

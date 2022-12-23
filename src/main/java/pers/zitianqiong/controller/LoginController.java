@@ -1,17 +1,14 @@
 package pers.zitianqiong.controller;
 
-import java.security.Principal;
 import javax.servlet.http.HttpServletRequest;
 
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 import pers.zitianqiong.common.JsonResult;
-import pers.zitianqiong.domain.Customer;
 import pers.zitianqiong.domain.LoginParam;
 import pers.zitianqiong.service.CustomerService;
 
@@ -43,20 +40,6 @@ public class LoginController {
                 loginParam.getPassword(),
                 loginParam.getCode(),
                 request);
-    }
-    
-    /**
-     * 用户信息
-     * @param principal 当前用户
-     * @return 响应
-     */
-    @GetMapping("/customer/info")
-    @ResponseBody
-    public Customer getAdminInfo(Principal principal) {
-        String username = principal.getName();
-        Customer customer = (Customer) userDetailsService.loadUserByUsername(username);
-        customer.setPassword(null);
-        return customer;
     }
     
 }

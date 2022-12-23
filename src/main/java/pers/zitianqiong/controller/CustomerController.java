@@ -21,7 +21,6 @@ import pers.zitianqiong.domain.status;
 import pers.zitianqiong.service.CustomerService;
 import pers.zitianqiong.service.DeptService;
 import pers.zitianqiong.service.WebSocketServer;
-import pers.zitianqiong.utils.JwtTokenUtil;
 import pers.zitianqiong.utils.RedisUtil;
 import pers.zitianqiong.vo.DeptVO;
 
@@ -39,9 +38,8 @@ public class       CustomerController {
     private final UserDetailsService userDetailsService;
     private final RedisUtil redisUtil;
     private final DeptService deptService;
-    private final JwtTokenUtil jwtTokenUtil;
     
-    private final long EXPIRE_TIME = 100L;
+    private final long EXPIRE_TIME = 1000L;
     
     /**
      * @return List<User>
