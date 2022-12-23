@@ -3,7 +3,6 @@ package pers.zitianqiong.config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -19,27 +18,20 @@ import pers.zitianqiong.filter.JwtAuthencationTokenFilter;
  */
 @Configuration
 public class SecurityConfig {
-    
-    @Bean
-    WebSecurityCustomizer webSecurityCustomizer() {
-        return web -> web.ignoring().antMatchers(
-                "/doc.html","/webjars/**","/v3/api-docs/**","/captcha","/swagger-ui/**");
-    }
-    
-    /**
-     * 定义密码bean后security会自动使用该密码类
-     * @return PasswordEncoder
-     */
-    @Bean
-    public PasswordEncoder getPwdEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+
+//    @Bean
+//    WebSecurityCustomizer webSecurityCustomizer() {
+//        return web -> web.ignoring().antMatchers(
+//                "/doc.html","/webjars/**","/v3/api-docs/**","/captcha","/swagger-ui/**");
+//    }
     
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         //关闭csrf验证
         http.csrf().disable();
         http.authorizeRequests()
+                .antMatchers("/doc.html","/webjars/**","/v3/api-docs/**","/captcha","/swagger-ui/**")
+                .permitAll()
                 .anyRequest().permitAll()
                 .and()
                 .sessionManagement()
@@ -50,6 +42,15 @@ public class SecurityConfig {
 //        添加jwt 登录授权过滤器
         http.addFilterBefore(jwtAuthencationTokenFilter(), UsernamePasswordAuthenticationFilter.class);
         return http.build();
+    }
+    
+    /**
+     * 定义密码bean后security会自动使用该密码类
+     * @return PasswordEncoder
+     */
+    @Bean
+    public PasswordEncoder getPwdEncoder() {
+        return new BCryptPasswordEncoder();
     }
     
     /**

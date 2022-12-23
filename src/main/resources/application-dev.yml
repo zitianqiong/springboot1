@@ -32,7 +32,15 @@ mybatis-plus:
   configuration:
     #日志输出在控制台,打印sql语句,调试用
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
-springfox:
-  documentation:
-    swagger-ui:
-      enabled: true
+springdoc:
+  use-fqn: true
+  swagger-ui:
+    default-models-expand-depth: -1
+    enabled: true
+  group-configs:
+    - group: 'default'
+      paths-to-match: '/**'
+      packages-to-scan: pers.zitianqiong
+  api-docs:
+    resolve-schema-properties: true
+    path: /v3/api-docs

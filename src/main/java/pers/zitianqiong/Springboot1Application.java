@@ -11,6 +11,7 @@ import org.springframework.boot.web.servlet.ServletComponentScan;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.env.Environment;
+import pers.zitianqiong.utils.StringUtils;
 
 /**
  * @author zitianqiong
@@ -32,26 +33,21 @@ public class Springboot1Application {
         String ip = InetAddress.getLocalHost().getHostAddress();
         String port = env.getProperty("server.port");
         String path = env.getProperty("server.servlet.context-path");
-        boolean swagger = Boolean.parseBoolean(env.getProperty("springfox.documentation.swagger-ui.enabled"));
-        
-        if (path == null) {
-            log.info("\n----------------------------------------------------------\n\t"
-                    + "系统应用正在运行! 请访问URLs:\n\t"
-                    + "本地: \t\thttp://localhost:{}/\n\t"
-                    + "External: \thttp://{}:{}/\n"
-                    + (swagger? "\tdoc: \t\thttp://localhost:" + port + "/doc.html\n" : "")
-                    + (swagger? "\tswagger: \thttp://localhost:" + port + "/swagger-ui\n" : "")
-                    + "----------------------------------------------------------"
-            , port,ip,port);
-        } else {
-            log.info("\n----------------------------------------------------------\n\t"
-                    + "系统应用正在运行! 请访问URLs:\n\t"
-                    + "本地: \t\thttp://localhost:" + port + "/" + path + "/\n\t"
-                    + "External: \thttp://" + ip + ":" + port + "/" + path + "/\n"
-                    + (swagger? "\tdoc: \t\thttp://localhost:" + port + "/" + path + "/doc.html\n" : "")
-                    + (swagger? "\tswagger: \thttp://localhost:" + port + "/" + path + "/swagger-ui\n" : "")
-                    + "----------------------------------------------------------");
+        if (path != null){
+            path = "/"+path;
+        }else{
+            path = StringUtils.EMPTY;
         }
+        boolean swagger = Boolean.parseBoolean(env.getProperty("springdoc.swagger-ui.enabled"));
+        
+            log.info("\n----------------------------------------------------------\n\t"
+                    + "系统应用正在运行! 请访问URLs:\n\t"
+                    + "本地: \t\thttp://localhost:{}{}/\n\t"
+                    + "External: \thttp://{}:{}{}/\n"
+                    + (swagger? "\tdoc: \t\thttp://localhost:{}{}/doc.html\n" : "")
+                    + (swagger? "\tswagger: \thttp://localhost:{}{}/swagger-ui\n" : "")
+                    + "----------------------------------------------------------"
+            , port, path, ip, port, path, port, path, port, path);
         new CountDownLatch(1).await();
     }
     

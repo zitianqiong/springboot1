@@ -4,6 +4,8 @@ import java.security.Principal;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -20,7 +22,6 @@ import pers.zitianqiong.domain.Dept;
 import pers.zitianqiong.domain.status;
 import pers.zitianqiong.service.CustomerService;
 import pers.zitianqiong.service.DeptService;
-import pers.zitianqiong.service.WebSocketServer;
 import pers.zitianqiong.utils.RedisUtil;
 import pers.zitianqiong.vo.DeptVO;
 
@@ -44,7 +45,7 @@ public class       CustomerController {
     /**
      * @return List<User>
      **/
-    @GetMapping("/user")
+    @GetMapping("/users")
     public List<Customer> getUsers() {
         String series = "userList";
         List<Customer> userList;
@@ -66,8 +67,8 @@ public class       CustomerController {
      * @return User 当前用户
      **/
     @GetMapping("/user/info")
+    @Operation(security = { @SecurityRequirement(name = "bearer-key") })
     public UserDetails getUser(Principal principal) {
-//        UserDetails principal = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         String username = principal.getName();
         Customer user;
         if (redisUtil.exists("user:" + username)) {
@@ -129,8 +130,4 @@ public class       CustomerController {
         return Result.success();
     }
     
-    @GetMapping("sendMsg")
-    public void sendMsg() {
-        WebSocketServer.sendInfo("test");
-    }
 }

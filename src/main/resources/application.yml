@@ -10,8 +10,6 @@ spring:
       cache:
         period: 600
   mvc:
-    pathmatch:
-      matching-strategy: ant_path_matcher
     static-path-pattern: /**
     hiddenmethod:
       filter:
