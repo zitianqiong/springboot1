@@ -1,19 +1,28 @@
 package pers.zitianqiong.domain;
 
 import java.io.Serializable;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Collection;
-import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import com.baomidou.mybatisplus.annotation.*;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.experimental.Accessors;
+import org.springframework.security.core.CredentialsContainer;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -27,9 +36,10 @@ import org.springframework.security.core.userdetails.UserDetails;
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
 @Data
-@JsonIgnoreProperties({"accountNonExpired", "accountNonLocked", "credentialsNonExpired", "authorities"})
+@JsonIgnoreProperties({"accountNonExpired", "accountNonLocked", "credentialsNonExpired", "authorities", "password",
+        "enabled", "version", "deleted"})
 @Schema(name = "Customer", description = "用户")
-public class Customer implements Serializable, UserDetails {
+public class Customer implements Serializable, UserDetails, CredentialsContainer {
     /**
      * 用户id唯一
      */
@@ -49,19 +59,28 @@ public class Customer implements Serializable, UserDetails {
     /**
      * 年龄
      */
-    private Integer age;
+    @JsonFormat(pattern = "yyyy-MM-dd",timezone = "Asia/Shanghai")
+    @JsonSerialize(using = LocalDateSerializer.class)
+    @JsonDeserialize(using = LocalDateDeserializer.class)
+    private LocalDate birthday;
     
     /**
      * 创建时间
      */
     @TableField("create_time")
-    private Date createTime;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone = "Asia/Shanghai")
+    @JsonSerialize(using = LocalDateTimeSerializer.class)
+    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
+    private LocalDateTime createTime;
     
     /**
      * 更新时间
      */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone = "Asia/Shanghai")
+    @JsonSerialize(using = LocalDateTimeSerializer.class)
+    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     @TableField("update_time")
-    private Date updateTime;
+    private LocalDateTime updateTime;
     
     /**
      * 乐观锁版本
@@ -69,10 +88,11 @@ public class Customer implements Serializable, UserDetails {
     @Version
     private Integer version;
     
-    @Getter(AccessLevel.NONE)//加上这个注解，就不会生成该字段的get，set方法
+    //加上这个注解，就不会生成该字段的get，set方法
+    @Getter(AccessLevel.NONE)
     private Boolean enabled;
     
-    @TableField(exist = false)//告诉mybatis plus 数据库中没有这个自定义的字段
+    @TableField(exist = false)
     private List<Authority> roles;
     
     @TableField(exist = false)
@@ -125,5 +145,11 @@ public class Customer implements Serializable, UserDetails {
     @Override
     public boolean isEnabled() {
         return enabled;
+    }
+    
+    @Override
+    public void eraseCredentials() {
+        // 设置 password 为 null
+        this.password = null;
     }
 }

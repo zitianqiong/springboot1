@@ -12,6 +12,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.validation.annotation.Validated;
@@ -68,6 +69,7 @@ public class       CustomerController {
      **/
     @GetMapping("/user/info")
     @Operation(security = { @SecurityRequirement(name = "bearer-key") })
+    @PreAuthorize("hasRole('common')")
     public UserDetails getUser(Principal principal) {
         String username = principal.getName();
         Customer user;
@@ -75,7 +77,6 @@ public class       CustomerController {
             user = redisUtil.get("user:" + username);
         } else {
             user = (Customer) userDetailsService.loadUserByUsername(username);
-            user.setPassword(null);
             redisUtil.set("user:" + username, user, EXPIRE_TIME, TimeUnit.SECONDS);
         }
         return user;
@@ -88,15 +89,15 @@ public class       CustomerController {
     @PostMapping("/user")
     @Cacheable(value = "user", key = "#id", unless = "#result == null")
     public Customer postUser(int id) {
-        return userService.getById(id);
+        return  (Customer) userDetailsService.loadUserByUsername(userService.getById(id).getUsername());
     }
     
     /**
      * 删除缓存
      **/
     @GetMapping("/evict")
-    @CacheEvict(value = "userList", key = "'deletedUser'+#id")
-    public void evict() {
+    @CacheEvict(value = "userList", key = "'user:'+#id")
+    public void evict(Integer id) {
         log.info("Evicting");
     }
     
@@ -112,6 +113,15 @@ public class       CustomerController {
         BeanUtils.copyProperties(deptVO, dept);
         deptService.save(dept);
         return Result.success();
+    }
+    
+    /**
+     * @return List<User>
+     **/
+    @GetMapping("/token")
+    @Operation(security = { @SecurityRequirement(name = "bearer-key") })
+    public Principal getTokenInfo(Principal principal) {
+        return principal;
     }
     
     /**

@@ -7,6 +7,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.BindException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -33,8 +34,13 @@ public class GlobalExceptionAdvice {
      * @return 错误返回体
      */
     @ExceptionHandler(UsernameNotFoundException.class)
-    public ErrorResult handleUsernameNotFoundException(SQLException e) {
+    public ErrorResult handleUsernameNotFoundException(UsernameNotFoundException e) {
         return ErrorResult.fail("用户不存在", e);
+    }
+    
+    @ExceptionHandler(AccessDeniedException.class)
+    public void handleUsernameNotFoundException(AccessDeniedException e) {
+        throw e;
     }
     
     /**

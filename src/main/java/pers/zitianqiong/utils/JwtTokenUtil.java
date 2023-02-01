@@ -40,7 +40,8 @@ public class JwtTokenUtil {
     @Value("${jwt.expiration}")
     private Long expiration;
     
-    public static String getToken(HttpServletRequest request){
+    public static String getToken(){
+        HttpServletRequest request = ServletUtils.getRequest();
         String authHeader = request.getHeader(tokenHeader);
         return authHeader.substring(tokenHead.length());
     }
@@ -94,7 +95,7 @@ public class JwtTokenUtil {
      * @param token token
      * @return token中用户信息
      */
-    private Claims getClaimsFromToken(String token) {
+    public Claims getClaimsFromToken(String token) {
         Claims claims = null;
         try {
             claims = Jwts.parser()

@@ -32,7 +32,7 @@ spring:
     location: classpath:banner.txt
 jwt:
   # JWT存储的请求头
-  tokenHeader: Authorization
+  tokenHeader: bearer-key
   # JWT 加解密使用的密钥
   secret: springboot-secret
   # JWT的超期限时间（60*60*24）
@@ -45,3 +45,6 @@ swagger:
   application-version: 1.0
   application-description: springfox swagger 3
   try-host: http://localhost:${server.port}
+netty:
+  port: 8082
+  path: /channel

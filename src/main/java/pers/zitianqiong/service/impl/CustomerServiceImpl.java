@@ -125,7 +125,7 @@ public class CustomerServiceImpl extends ServiceImpl<CustomerMapper, Customer>
          * 如果以上都没有进入判断，说明用户和密码是正确的：就可以拿到jwt令牌了
          */
         String token = jwtTokenUtil.generateToken(userDetails);
-        redisUtil.set("username:" + username, token, 604800L, TimeUnit.SECONDS);
+        redisUtil.set("userToken:" + username, token, 604800L, TimeUnit.SECONDS);
         //有了token，就用map返回：将token返回去,头部信息也返回去前端，让他放在请求头里面
         Map<String, String> tokenMap = new HashMap<>();
         tokenMap.put("token", token);

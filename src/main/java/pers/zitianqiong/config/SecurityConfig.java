@@ -1,7 +1,9 @@
 package pers.zitianqiong.config;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -9,6 +11,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import pers.zitianqiong.filter.JwtAuthencationTokenFilter;
+import pers.zitianqiong.handler.RestAuthorizationEntryPoint;
+import pers.zitianqiong.handler.RestfulAccessDeniedHandler;
 
 /**
  * <p>描述：</p>
@@ -17,7 +21,12 @@ import pers.zitianqiong.filter.JwtAuthencationTokenFilter;
  * @date 2022/12/23
  */
 @Configuration
-public class SecurityConfig {
+@EnableGlobalMethodSecurity(securedEnabled = true, prePostEnabled = true)
+public class SecurityConfig{
+    @Autowired
+    private RestfulAccessDeniedHandler myAccessDeniedHandle;
+    @Autowired
+    private RestAuthorizationEntryPoint restAuthorizationEntryPoint;
 
 //    @Bean
 //    WebSecurityCustomizer webSecurityCustomizer() {
@@ -39,8 +48,11 @@ public class SecurityConfig {
                 .and()
                 .headers()
                 .cacheControl();
-//        添加jwt 登录授权过滤器
-        http.addFilterBefore(jwtAuthencationTokenFilter(), UsernamePasswordAuthenticationFilter.class);
+        //        添加jwt 登录授权过滤器
+        http.addFilterBefore(jwtAuthencationTokenFilter(), UsernamePasswordAuthenticationFilter.class)
+                .exceptionHandling()
+                .accessDeniedHandler(myAccessDeniedHandle)
+                .authenticationEntryPoint(restAuthorizationEntryPoint);
         return http.build();
     }
     

@@ -6,6 +6,7 @@ import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.info.License;
 import io.swagger.v3.oas.models.security.SecurityScheme;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -18,7 +19,8 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
  */
 @Configuration
 public class SpringDocConfig implements WebMvcConfigurer {
-    
+    @Value("${jwt.tokenHeader}")
+    private String tokenHeader;
     
     @Bean
     public OpenAPI springDocOpenApi() {
@@ -48,7 +50,7 @@ public class SpringDocConfig implements WebMvcConfigurer {
      在添加OpenApiConfig类上添加Components信息：*/
     private Components components() {
         return new Components()
-                .addSecuritySchemes("bearer-key",
+                .addSecuritySchemes(tokenHeader,
                         new SecurityScheme()
                                 .type(SecurityScheme.Type.HTTP)
                                 .scheme("bearer")

@@ -45,7 +45,7 @@ public class Springboot1Application {
                     + "本地: \t\thttp://localhost:{}{}/\n\t"
                     + "External: \thttp://{}:{}{}/\n"
                     + (swagger? "\tdoc: \t\thttp://localhost:{}{}/doc.html\n" : "")
-                    + (swagger? "\tswagger: \thttp://localhost:{}{}/swagger-ui\n" : "")
+                    + (swagger? "\tswagger: \thttp://localhost:{}{}/swagger-ui/\n" : "")
                     + "----------------------------------------------------------"
             , port, path, ip, port, path, port, path, port, path);
         new CountDownLatch(1).await();
