@@ -1,15 +1,17 @@
 package pers.zitianqiong.common;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.Data;
+
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-
-import lombok.Data;
 
 /**
  * 数据成功响应
  */
 @Data
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class Result implements Serializable {
     private static final long serialVersionUID = -4505655308965878999L;
     

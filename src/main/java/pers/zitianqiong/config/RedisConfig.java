@@ -1,13 +1,20 @@
 package pers.zitianqiong.config;
 
-import java.time.Duration;
-
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CachingConfigurerSupport;
 import org.springframework.cache.annotation.EnableCaching;
+import org.springframework.cache.caffeine.CaffeineCacheManager;
 import org.springframework.cache.interceptor.CacheErrorHandler;
+import org.springframework.cache.interceptor.CacheResolver;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
@@ -19,6 +26,11 @@ import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 import pers.zitianqiong.utils.FastJson2JsonRedisSerializer;
 
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+
 /**
  * <p>redis 配置</p>
  * @author 丛吉钰
@@ -28,62 +40,81 @@ import pers.zitianqiong.utils.FastJson2JsonRedisSerializer;
 @Slf4j
 public class RedisConfig extends CachingConfigurerSupport {
 
+    @Autowired
+    private RedisConnectionFactory connectionFactory;
+
+    @Override
+    public CacheResolver cacheResolver() {
+        // 通过caffeine实现的自定义堆内存缓存管理器
+        CacheManager caffeineCacheManager = caffeineCacheManager();
+        CacheManager redisCacheManager = redisCacheManager(connectionFactory);
+        List<CacheManager> list = new ArrayList<>();
+        // 优先读取堆内存缓存
+        list.add(caffeineCacheManager);
+//         堆内存缓存读取不到该key时再读取redis缓存
+        list.add(redisCacheManager);
+        return new CustomCacheResolver(list);
+    }
+
+    @Bean
+    public CacheManager caffeineCacheManager() {
+        CaffeineCacheManager cacheManager = new CaffeineCacheManager();
+        cacheManager.setCaffeine(
+                Caffeine.newBuilder()
+                        .initialCapacity(64)
+                        .maximumSize(256)
+                        .expireAfterAccess(600, TimeUnit.SECONDS)
+                        .recordStats());
+        cacheManager.setAllowNullValues(false);
+        return cacheManager;
+    }
+
     /**
      * 配置API的序列化
-     * @param factory redis工厂
      * @return RedisTemplate<Object>
      **/
     @Bean
     public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory factory) {
         RedisTemplate<String, Object> template = new RedisTemplate<>();
         RedisSerializer<String> redisSerializer = new StringRedisSerializer();
-//        Jackson2JsonRedisSerializer<Object> jacksonSeial = new Jackson2JsonRedisSerializer<>(Object.class);
-        FastJson2JsonRedisSerializer<Object> serializer = new FastJson2JsonRedisSerializer<>(Object.class);
-//        ObjectMapper om = new ObjectMapper();
-//        om.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY);
-//        om.activateDefaultTyping(LaissezFaireSubTypeValidator.instance,
-//                ObjectMapper.DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY);
-//        jacksonSeial.setObjectMapper(om);
+        FastJson2JsonRedisSerializer<Object> fastJsonRedisSerializer = new FastJson2JsonRedisSerializer<>(Object.class);
         template.setConnectionFactory(factory);
-        //设置模板为jackson
-        //template.setDefaultSerializer(jacksonSeial);
-        //key序列化方式
+
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY);
+        mapper.activateDefaultTyping(LaissezFaireSubTypeValidator.instance,
+                ObjectMapper.DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY);
+        fastJsonRedisSerializer.setObjectMapper(mapper);
+
+        //key序列化
         template.setKeySerializer(redisSerializer);
-        //value序列化
-        template.setValueSerializer(serializer);
         template.setHashKeySerializer(redisSerializer);
-        //value hashmap序列化
-        template.setHashValueSerializer(serializer);
+        //value序列化
+        template.setValueSerializer(fastJsonRedisSerializer);
+        template.setHashValueSerializer(fastJsonRedisSerializer);
+        template.afterPropertiesSet();
         return template;
     }
 
     /**
      * 想要注解使用自定义配置cache Manager
-     * @param factory redis工厂
      * @return CacheManager
      **/
     @Bean
-    public CacheManager cacheManager(RedisConnectionFactory factory) {
+    public CacheManager redisCacheManager(RedisConnectionFactory factory) {
         RedisSerializer<String> redisSerializer = new StringRedisSerializer();
-//        Jackson2JsonRedisSerializer<Object> jacksonSeial = new Jackson2JsonRedisSerializer<>(Object.class);
         FastJson2JsonRedisSerializer<Object> fastJsonRedisSerializer = new FastJson2JsonRedisSerializer<>(Object.class);
-        //解决查询缓存转换异常的问题
-//        ObjectMapper om = new ObjectMapper();
-//        om.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY);
-//        om.activateDefaultTyping(LaissezFaireSubTypeValidator.instance,
-//                ObjectMapper.DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY);
-//        jacksonSeial.setObjectMapper(om);
+
         // 配置序列化（解决乱码的问题）,过期时间3600秒
         RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig()
-                .entryTtl(Duration.ofHours(1))
+                .entryTtl(Duration.ofMinutes(30))
                 .serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(redisSerializer))
                 .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(fastJsonRedisSerializer))
                 .computePrefixWith(name -> name + ":")
                 .disableCachingNullValues();
-        RedisCacheManager cacheManager = RedisCacheManager.builder(factory)
+        return RedisCacheManager.builder(factory)
                 .cacheDefaults(config)
                 .build();
-        return cacheManager;
     }
 
     /**
@@ -95,22 +126,22 @@ public class RedisConfig extends CachingConfigurerSupport {
         return new CacheErrorHandler() {
             @Override
             public void handleCachePutError(RuntimeException exception, Cache cache, Object key, Object value) {
-                handleRedisErrorException(exception, key);
+                handleRedisErrorException(exception, key, "cachePutError");
             }
 
             @Override
             public void handleCacheGetError(RuntimeException exception, Cache cache, Object key) {
-                handleRedisErrorException(exception, key);
+                handleRedisErrorException(exception, key, "cacheGetError");
             }
 
             @Override
             public void handleCacheEvictError(RuntimeException exception, Cache cache, Object key) {
-                handleRedisErrorException(exception, key);
+                handleRedisErrorException(exception, key, "cacheEvictError");
             }
 
             @Override
             public void handleCacheClearError(RuntimeException exception, Cache cache) {
-                handleRedisErrorException(exception, null);
+                handleRedisErrorException(exception, null, "cacheClearError");
             }
         };
     }
@@ -119,8 +150,8 @@ public class RedisConfig extends CachingConfigurerSupport {
      * @param exception .
      * @param key       .
      **/
-    protected void handleRedisErrorException(RuntimeException exception, Object key) {
-        log.error("redis异常：key=[{}]", key, exception);
+    protected void handleRedisErrorException(RuntimeException exception, Object key, String reason) {
+        log.error("redis异常：{},key=[{}]", reason, key, exception);
     }
 
 }

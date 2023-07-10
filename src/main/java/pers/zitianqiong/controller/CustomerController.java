@@ -1,9 +1,7 @@
 package pers.zitianqiong.controller;
 
-import java.security.Principal;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +10,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -25,6 +24,10 @@ import pers.zitianqiong.service.CustomerService;
 import pers.zitianqiong.service.DeptService;
 import pers.zitianqiong.utils.RedisUtil;
 import pers.zitianqiong.vo.DeptVO;
+
+import java.security.Principal;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * <p></p>
@@ -40,6 +43,8 @@ public class       CustomerController {
     private final UserDetailsService userDetailsService;
     private final RedisUtil redisUtil;
     private final DeptService deptService;
+    @Autowired
+    ThreadPoolTaskExecutor threadPoolTaskExecutor;
     
     private final long EXPIRE_TIME = 1000L;
     
@@ -47,11 +52,13 @@ public class       CustomerController {
      * @return List<User>
      **/
     @GetMapping("/users")
+//    @Cacheable(value = "userList")
     public List<Customer> getUsers() {
         String series = "userList";
         List<Customer> userList;
         if (redisUtil.exists(series)) {
-            userList = redisUtil.get(series);
+            JSONArray jsonArray = redisUtil.get(series);
+            userList = jsonArray.toJavaList(Customer.class);
         } else {
             userList = userService.list();
             userList.forEach(user -> {
@@ -74,7 +81,8 @@ public class       CustomerController {
         String username = principal.getName();
         Customer user;
         if (redisUtil.exists("user:" + username)) {
-            user = redisUtil.get("user:" + username);
+            JSONObject jsonObject = redisUtil.get("user:" + username);
+            user = jsonObject.toJavaObject(Customer.class);
         } else {
             user = (Customer) userDetailsService.loadUserByUsername(username);
             redisUtil.set("user:" + username, user, EXPIRE_TIME, TimeUnit.SECONDS);
@@ -119,6 +127,7 @@ public class       CustomerController {
      * @return List<User>
      **/
     @GetMapping("/token")
+    @Cacheable(value = "userTokenPrincipal", key = "#principal.name")
     @Operation(security = { @SecurityRequirement(name = "bearer-key") })
     public Principal getTokenInfo(Principal principal) {
         return principal;
@@ -139,5 +148,12 @@ public class       CustomerController {
         log.info("{}用户退出", principal.getName());
         return Result.success();
     }
-    
+
+    @GetMapping("test")
+    @ResponseBody
+    public String test() throws InterruptedException {
+        log.info("{}", deptService.count());
+        threadPoolTaskExecutor.execute(()-> deptService.trans());
+        return "ok";
+    }
 }

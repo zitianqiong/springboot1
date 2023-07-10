@@ -1,5 +1,5 @@
 server:
-  port: 8081
+  port: 8123
 spring:
   profiles:
     active: dev,mybatisPlus
@@ -39,12 +39,6 @@ jwt:
   expiration: 604800
   # JWT 负载中拿到开头
   tokenHead: Bearer
-# ===== 自定义swagger配置 ===== #
-swagger:
-  application-name: ${spring.application.name}
-  application-version: 1.0
-  application-description: springfox swagger 3
-  try-host: http://localhost:${server.port}
 netty:
   port: 8082
   path: /channel

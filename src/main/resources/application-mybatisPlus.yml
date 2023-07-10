@@ -22,7 +22,8 @@ mybatis-plus:
   configuration:
     # 配置的缓存的全局开关
     cache-enabled: true
-    map-underscore-to-camel-case: false
+    #默认开启驼峰转换
+    map-underscore-to-camel-case: true
     # 延时加载的开关
     lazyLoadingEnabled: true
     # 开启的话，延时加载一个属性时会加载该对象全部属性，否则按需加载属性

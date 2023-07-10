@@ -1,10 +1,11 @@
 package pers.zitianqiong.common;
 
+import com.alibaba.fastjson.annotation.JSONField;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.Data;
+
 import java.io.Serializable;
 import java.util.List;
-
-import com.alibaba.fastjson.annotation.JSONField;
-import lombok.Data;
 
 /**
  * @author 丛吉钰
@@ -14,6 +15,7 @@ import lombok.Data;
  * @param <T> 类型
  */
 @Data
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class JsonResult<T> implements Serializable {
     private static final long serialVersionUID = -6960041611138493749L;
     protected static final int SUCCESS = 200;
@@ -63,6 +65,5 @@ public class JsonResult<T> implements Serializable {
         this.msg = flag ? SUCCESS_MSG : FAIL_MSG;
         this.code = flag ? SUCCESS : ERROR;
     }
-    
     
 }

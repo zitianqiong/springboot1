@@ -1,9 +1,9 @@
 spring:
   datasource:
     driver-class-name: com.p6spy.engine.spy.P6SpyDriver #com.mysql.cj.jdbc.Driver
-    username: ${MYSQL_USERNAME}
-    password: ${MYSQL_PASSWORD}
-    url: jdbc:p6spy:mysql://${MYSQL_HOST:localhost}:${MYSQL_PORT:3306}/springboot?serverTimezone=GMT%2B8&useUnicode=true&characterEncoding=utf-8&useSSL=false
+    username: ${MYSQL_USERNAME:root}
+    password: ${MYSQL_PASSWORD:123+++w.}
+    url: jdbc:p6spy:mysql://${MYSQL_HOST:localhost}:${MYSQL_PORT:3306}/springboot?serverTimezone=GMT%2B8&useUnicode=true&characterEncoding=utf-8&useSSL=false&allowPublicKeyRetrieval=true
     #hikari数据库连接池
     hikari:
       pool-name: common-pool
@@ -18,16 +18,22 @@ spring:
     type: redis
     redis:
       time-to-live: 60000
+      cache-null-values: false
   redis:
+    # Redis服务器地址
     host: ${REDIS_HOST}
-    port: ${REDIS_PORT}
-    password: ${REDIS_PASSWORD}
-    client-type: jedis
-    jedis:
+    port: ${REDIS_PORT}         # Redis服务器连接端口
+    password: ${REDIS_PASSWORD} # Redis服务器连接密码（默认为空）
+    database: 0                 # Redis数据库索引（默认为0）
+    timeout: 60s                # 连接空闲超过N(s秒、ms毫秒)后关闭，0为禁用，这里配置值和tcp-keepalive值一致
+    client-type: lettuce
+    lettuce:
       pool:
-        max-active: 10
-    # 连接超时时间（毫秒）
-    timeout: 5000
+        max-active: 10          # 允许最大连接数，默认8（负值表示没有限制）,max-active：大于cpu * 2，通常为(cpu * 2) + 2
+        max-idle: 8             # 最大空闲连接数，默认8, cpu * 2
+        min-idle: 0             # 最小空闲连接数，默认0
+        max-wait: 5s            # 连接用完时，新的请求等待时间(s秒、ms毫秒)，超过该时间抛出异常JedisConnectionException，(默认-1，负值表示没有限制)
+        #time-between-eviction-runs: 1s
 mybatis-plus:
   configuration:
     #日志输出在控制台,打印sql语句,调试用

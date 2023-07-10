@@ -3,11 +3,8 @@ package pers.zitianqiong.controller;
 import javax.servlet.http.HttpServletRequest;
 
 import lombok.AllArgsConstructor;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 import pers.zitianqiong.common.JsonResult;
 import pers.zitianqiong.domain.LoginParam;
 import pers.zitianqiong.service.CustomerService;
@@ -23,7 +20,6 @@ import pers.zitianqiong.service.CustomerService;
 public class LoginController {
     //注入service
     private final CustomerService customerService;
-    private final UserDetailsService userDetailsService;
     
     /**
      * 登录之后返回token

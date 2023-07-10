@@ -1,8 +1,5 @@
 package pers.zitianqiong.domain;
 
-import java.io.Serializable;
-import java.math.BigDecimal;
-
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
@@ -10,6 +7,10 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.io.Serializable;
+import java.math.BigDecimal;
+import java.time.LocalDate;
 
 /**
  * 部门
@@ -41,6 +42,11 @@ public class Dept implements Serializable {
      * 状态
      */
     private status stuts;
+
+    /**
+     * 状态
+     */
+    private LocalDate datestate;
     
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;

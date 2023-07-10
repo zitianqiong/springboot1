@@ -1,16 +1,18 @@
 package pers.zitianqiong.common;
 
-import java.io.Serializable;
-
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
+
+import java.io.Serializable;
 
 /**
  * 系统错误响应体
  */
 @Data
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class ErrorResult implements Serializable {
     
-    private static final long serialVersionUID = -4505655308965878999L;
+    private static final long serialVersionUID = -4505655308965878995L;
     
     /**
      * 错误编码

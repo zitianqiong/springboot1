@@ -1,9 +1,5 @@
 package pers.zitianqiong;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.concurrent.CountDownLatch;
-
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -12,6 +8,9 @@ import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.env.Environment;
 import pers.zitianqiong.utils.StringUtils;
+
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 /**
  * @author zitianqiong
@@ -45,10 +44,10 @@ public class Springboot1Application {
                     + "本地: \t\thttp://localhost:{}{}/\n\t"
                     + "External: \thttp://{}:{}{}/\n"
                     + (swagger? "\tdoc: \t\thttp://localhost:{}{}/doc.html\n" : "")
-                    + (swagger? "\tswagger: \thttp://localhost:{}{}/swagger-ui/\n" : "")
+                    + (swagger? "\tswagger: \thttp://localhost:{}{}/swagger-ui\n" : "")
                     + "----------------------------------------------------------"
             , port, path, ip, port, path, port, path, port, path);
-        new CountDownLatch(1).await();
+
     }
     
 }

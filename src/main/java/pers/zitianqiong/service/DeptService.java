@@ -1,6 +1,7 @@
 package pers.zitianqiong.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import org.springframework.transaction.annotation.Transactional;
 import pers.zitianqiong.domain.Dept;
 
 /**
@@ -10,4 +11,6 @@ import pers.zitianqiong.domain.Dept;
 */
 public interface DeptService extends IService<Dept> {
 
+    @Transactional(rollbackFor = Exception.class)
+    void trans();
 }
