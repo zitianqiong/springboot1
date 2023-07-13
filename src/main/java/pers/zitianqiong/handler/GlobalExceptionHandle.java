@@ -1,10 +1,6 @@
-package pers.zitianqiong.advice;
+package pers.zitianqiong.handler;
 
-import java.sql.SQLException;
-import java.sql.SQLIntegrityConstraintViolationException;
-import java.util.Objects;
-import javax.servlet.http.HttpServletRequest;
-
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
@@ -16,6 +12,10 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import pers.zitianqiong.common.ErrorResult;
 import pers.zitianqiong.common.ResultCode;
 
+import java.sql.SQLException;
+import java.sql.SQLIntegrityConstraintViolationException;
+import java.util.Objects;
+
 
 /**
  * <p>描述：</p>
@@ -25,7 +25,7 @@ import pers.zitianqiong.common.ResultCode;
  */
 @RestControllerAdvice(basePackages = "pers.zitianqiong.controller")
 @Slf4j
-public class GlobalExceptionAdvice {
+public class GlobalExceptionHandle {
     
     /**
      * 用户未找到异常

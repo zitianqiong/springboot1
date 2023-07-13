@@ -1,13 +1,13 @@
 package pers.zitianqiong.vo;
 
-import java.math.BigDecimal;
-import javax.validation.constraints.DecimalMin;
-import javax.validation.constraints.NotNull;
-
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import pers.zitianqiong.domain.status;
+
+import java.math.BigDecimal;
 
 /**
  * <p>描述：</p>

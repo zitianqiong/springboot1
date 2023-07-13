@@ -1,5 +1,6 @@
 package pers.zitianqiong.config;
 
+import com.alibaba.fastjson2.support.spring6.data.redis.FastJsonRedisSerializer;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
@@ -24,7 +25,6 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
-import pers.zitianqiong.utils.FastJson2JsonRedisSerializer;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -77,14 +77,13 @@ public class RedisConfig extends CachingConfigurerSupport {
     public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory factory) {
         RedisTemplate<String, Object> template = new RedisTemplate<>();
         RedisSerializer<String> redisSerializer = new StringRedisSerializer();
-        FastJson2JsonRedisSerializer<Object> fastJsonRedisSerializer = new FastJson2JsonRedisSerializer<>(Object.class);
+        FastJsonRedisSerializer<Object> fastJsonRedisSerializer = new FastJsonRedisSerializer<>(Object.class);
         template.setConnectionFactory(factory);
 
         ObjectMapper mapper = new ObjectMapper();
         mapper.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY);
         mapper.activateDefaultTyping(LaissezFaireSubTypeValidator.instance,
                 ObjectMapper.DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY);
-        fastJsonRedisSerializer.setObjectMapper(mapper);
 
         //key序列化
         template.setKeySerializer(redisSerializer);
@@ -103,7 +102,7 @@ public class RedisConfig extends CachingConfigurerSupport {
     @Bean
     public CacheManager redisCacheManager(RedisConnectionFactory factory) {
         RedisSerializer<String> redisSerializer = new StringRedisSerializer();
-        FastJson2JsonRedisSerializer<Object> fastJsonRedisSerializer = new FastJson2JsonRedisSerializer<>(Object.class);
+        FastJsonRedisSerializer<Object> fastJsonRedisSerializer = new FastJsonRedisSerializer<>(Object.class);
 
         // 配置序列化（解决乱码的问题）,过期时间3600秒
         RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig()

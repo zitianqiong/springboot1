@@ -1,9 +1,10 @@
 package pers.zitianqiong.controller;
 
-import java.io.IOException;
-
 import org.springframework.web.bind.annotation.*;
+import pers.zitianqiong.annontation.IgnoreGlobalResponse;
 import pers.zitianqiong.utils.QrCodeUtil;
+
+import java.io.IOException;
 
 /**
  * <p>描述：</p>
@@ -23,6 +24,7 @@ public class QRCodeController {
      */
     @GetMapping(value = "/getQRCode")
     @ResponseBody
+    @IgnoreGlobalResponse
     public String getQRCode(@RequestParam("value") String value) throws IOException {
         String qrCodeValue = value == null ? "null" : value;
         int HEIGHT = 200;

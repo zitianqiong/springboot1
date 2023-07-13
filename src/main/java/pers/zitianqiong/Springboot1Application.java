@@ -24,9 +24,8 @@ public class Springboot1Application {
     /**
      * @param args .
      * @throws UnknownHostException UnknownHostException
-     * @throws InterruptedException InterruptedException
      **/
-    public static void main(String[] args) throws UnknownHostException, InterruptedException {
+    public static void main(String[] args) throws UnknownHostException {
         ConfigurableApplicationContext application = SpringApplication.run(Springboot1Application.class, args);
         Environment env = application.getEnvironment();
         String ip = InetAddress.getLocalHost().getHostAddress();
@@ -44,7 +43,7 @@ public class Springboot1Application {
                     + "本地: \t\thttp://localhost:{}{}/\n\t"
                     + "External: \thttp://{}:{}{}/\n"
                     + (swagger? "\tdoc: \t\thttp://localhost:{}{}/doc.html\n" : "")
-                    + (swagger? "\tswagger: \thttp://localhost:{}{}/swagger-ui\n" : "")
+                    + (swagger? "\tswagger: \thttp://localhost:{}{}/swagger-ui/index.html\n" : "")
                     + "----------------------------------------------------------"
             , port, path, ip, port, path, port, path, port, path);
 

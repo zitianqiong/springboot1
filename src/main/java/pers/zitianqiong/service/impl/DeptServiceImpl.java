@@ -33,7 +33,7 @@ public class DeptServiceImpl extends ServiceImpl<DeptMapper, Dept>
         dept.setDatestate(LocalDate.now());
         save(dept);
         long count = count();
-        log.info("{}", count);
+        log.info("添加后数：{}，然后抛异常", count);
         throw new NullPointerException();
     }
 }

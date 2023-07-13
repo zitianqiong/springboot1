@@ -1,18 +1,17 @@
 package pers.zitianqiong.utils;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
+
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * <p>描述：JwtToken工具类</p>
@@ -23,12 +22,12 @@ import org.springframework.stereotype.Component;
 @Component
 @Slf4j
 public class JwtTokenUtil {
-    
+
     //荷载 用户名的key
     private static final String CLAIM_KEY_USERNAME = "sub";
     //jwt的创建时间
     private static final String CLAIM_KEY_CREATED = "created";
-    
+
     //jwt的秘钥以及失效时间，通过刚刚的配置目录去拿。通过value注解
     @Value("${jwt.tokenHeader}")
     private static String tokenHeader;
@@ -39,13 +38,13 @@ public class JwtTokenUtil {
     //失效时间：
     @Value("${jwt.expiration}")
     private Long expiration;
-    
+
     public static String getToken(){
         HttpServletRequest request = ServletUtils.getRequest();
         String authHeader = request.getHeader(tokenHeader);
         return authHeader.substring(tokenHead.length());
     }
-    
+
     /*
         1.根据用户名生成token
         2.根据token拿到用户名
@@ -53,7 +52,7 @@ public class JwtTokenUtil {
         3.判断token是否能被刷新
         4.刷新token
      */
-    
+
     /**
      * 1根据用户名信息生成token
      *
@@ -67,7 +66,7 @@ public class JwtTokenUtil {
         //将荷载存入
         return generateToken(claims);
     }
-    
+
     /**
      * 2从token中获取登录用户名
      *
@@ -86,9 +85,9 @@ public class JwtTokenUtil {
             throw new RuntimeException("token非法");
         }
         return username;
-        
+
     }
-    
+
     /**
      * 2.1从token中获取荷载
      *
@@ -109,7 +108,7 @@ public class JwtTokenUtil {
         }
         return claims;
     }
-    
+
     /**
      * 3判断token是否有效：
      * 1.是否过期
@@ -124,7 +123,7 @@ public class JwtTokenUtil {
         String username = getUserNameFromToken(token);
         return username.equals(userDetails.getUsername()) && !isTokenExpiration(token);
     }
-    
+
     /**
      * 4判断token是否能被刷新：
      * isTokenExpiration=true
@@ -137,7 +136,7 @@ public class JwtTokenUtil {
         //如果过期了就可以被刷新
         return !isTokenExpiration(token);
     }
-    
+
     /**
      * 刷新token
      *
@@ -150,8 +149,8 @@ public class JwtTokenUtil {
         claims.put(CLAIM_KEY_CREATED, new Date());
         return generateToken(claims);
     }
-    
-    
+
+
     /**
      * 3.1判断token是否失效：
      *
@@ -164,7 +163,7 @@ public class JwtTokenUtil {
         //判断：失效时间：是否在当前时间的前面
         return exprireDate.before(new Date());
     }
-    
+
     /**
      * 3.2从token中获取失效时间：
      *
@@ -177,7 +176,7 @@ public class JwtTokenUtil {
         //过期时间：
         return claims.getExpiration();
     }
-    
+
     /**
      * 1根据荷载生成Jwt token
      * 参数是荷载。
@@ -195,7 +194,7 @@ public class JwtTokenUtil {
                 .signWith(SignatureAlgorithm.HS512, secret)
                 .compact();
     }
-    
+
     /**
      * 1生成token失效时间
      *
@@ -205,5 +204,5 @@ public class JwtTokenUtil {
         //失效时间：当前时间+过期时间
         return new Date(System.currentTimeMillis() + expiration * 1000);
     }
-    
+
 }

@@ -1,11 +1,6 @@
 package pers.zitianqiong.controller;
 
-import java.io.File;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.util.UUID;
-import javax.servlet.http.HttpServletRequest;
-
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.springframework.http.HttpHeaders;
@@ -19,6 +14,11 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import pers.zitianqiong.common.Result;
 import pers.zitianqiong.common.ResultCode;
+
+import java.io.File;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.UUID;
 
 /**
  * 文件管理控制类

@@ -1,4 +1,4 @@
-package pers.zitianqiong.advice;
+package pers.zitianqiong.handler;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -9,6 +9,7 @@ import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
+import pers.zitianqiong.annontation.IgnoreGlobalResponse;
 import pers.zitianqiong.common.*;
 
 /**
@@ -18,13 +19,16 @@ import pers.zitianqiong.common.*;
  * @date 2022/10/31
  */
 @RestControllerAdvice(basePackages = "pers.zitianqiong.controller")
-public class ResultResponseAdvice implements ResponseBodyAdvice<Object> {
+public class GlobalResultResponseHandle implements ResponseBodyAdvice<Object> {
     @Override
-    public boolean supports(final MethodParameter returnType,
+    public boolean supports(final MethodParameter methodParameter,
                             final Class<? extends HttpMessageConverter<?>> converterType) {
-        return !(returnType.getGenericParameterType().equals(JsonResult.class)
-                || returnType.getGenericParameterType().equals(Result.class)
-                || returnType.getGenericParameterType().equals(ErrorResult.class));
+        return !(methodParameter.getGenericParameterType().equals(JsonResult.class) ||
+                methodParameter.getGenericParameterType().equals(Result.class) ||
+                methodParameter.getGenericParameterType().equals(ErrorResult.class) ||
+                methodParameter.getDeclaringClass().isAnnotationPresent(IgnoreGlobalResponse.class) ||
+                (methodParameter.getMethod() != null && methodParameter.getMethod().isAnnotationPresent(IgnoreGlobalResponse.class))
+        );
     }
     
     @Override
@@ -37,7 +41,6 @@ public class ResultResponseAdvice implements ResponseBodyAdvice<Object> {
         }
         final SuccessResult<Object> result = new SuccessResult<>();
         result.setCode(ResultCode.SUCCESS.getCode());
-//        result.setMsg("查询成功");
         result.setData(body);
         if (returnType.getGenericParameterType().equals(String.class)) {
             ObjectMapper objectMapper = new ObjectMapper();

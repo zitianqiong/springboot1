@@ -1,17 +1,17 @@
 package pers.zitianqiong.service;
 
-import java.io.IOException;
-import java.util.concurrent.ConcurrentHashMap;
-import javax.websocket.*;
-import javax.websocket.server.PathParam;
-import javax.websocket.server.ServerEndpoint;
-
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONException;
 import com.alibaba.fastjson2.JSONObject;
+import jakarta.websocket.*;
+import jakarta.websocket.server.PathParam;
+import jakarta.websocket.server.ServerEndpoint;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import pers.zitianqiong.utils.StringUtils;
+
+import java.io.IOException;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * <p>描述：</p>
@@ -24,7 +24,7 @@ import pers.zitianqiong.utils.StringUtils;
 @Component
 @Slf4j
 public class WebSocketServer {
-    
+
     /**
      * 用来记录当前在线连接数。应该把它设计成线程安全的。
      */
@@ -41,7 +41,7 @@ public class WebSocketServer {
      * 接收userId
      */
     private String userId = "";
-    
+
     /**
      * 连接建立成功调用的方法
      */
@@ -66,7 +66,7 @@ public class WebSocketServer {
             log.error("用户:{},网络异常",userId);
         }
     }
-    
+
     /**
      * 连接关闭调用的方法
      */
@@ -79,7 +79,7 @@ public class WebSocketServer {
         }
         log.info("用户退出:{},当前在线人数为:{}", userId,getOnlineCount());
     }
-    
+
     /**
      * 收到客户端消息后调用的方法
      *
@@ -105,13 +105,13 @@ public class WebSocketServer {
                     //否则不在这个服务器上，发送到mysql或者redis
                 }
             }catch (JSONException ignored){
-            
+
             } catch (Exception e) {
                 log.error("webSocket接收消息错误",e);
             }
         }
     }
-    
+
     /**
      * 错误
      *
@@ -120,17 +120,16 @@ public class WebSocketServer {
      */
     @OnError
     public void onError(Session session, Throwable error) {
-//        System.out.println("用户错误:"+this.userId+",原因:"+error.getMessage());
         log.error("webSocket发生错误,用户：{}，原因", this.userId, error);
     }
-    
+
     /**
      * 实现服务器主动推送
      */
     public void sendMessage(String message) throws IOException {
         this.session.getBasicRemote().sendText(message);
     }
-    
+
     /**
      * 广播自定义消息
      */
@@ -145,7 +144,7 @@ public class WebSocketServer {
             }
         }
     }
-    
+
     /**
      * 发送自定义消息
      */
@@ -162,15 +161,15 @@ public class WebSocketServer {
             log.info("用户{},不在线！", userId);
         }
     }
-    
+
     public static synchronized int getOnlineCount() {
         return onlineCount;
     }
-    
+
     public static synchronized void addOnlineCount() {
         WebSocketServer.onlineCount++;
     }
-    
+
     public static synchronized void subOnlineCount() {
         WebSocketServer.onlineCount--;
     }

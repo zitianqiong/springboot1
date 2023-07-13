@@ -1,15 +1,8 @@
 package pers.zitianqiong.service.impl;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
-import javax.servlet.http.HttpServletRequest;
-
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -33,13 +26,18 @@ import pers.zitianqiong.service.CustomerService;
 import pers.zitianqiong.utils.JwtTokenUtil;
 import pers.zitianqiong.utils.RedisUtil;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+
 /**
  *
  */
 @Service
 public class CustomerServiceImpl extends ServiceImpl<CustomerMapper, Customer>
         implements CustomerService {
-    
+
     @Autowired
     private AuthorityService authorityService;
     @Autowired
@@ -52,31 +50,33 @@ public class CustomerServiceImpl extends ServiceImpl<CustomerMapper, Customer>
     private JwtTokenUtil jwtTokenUtil;
     @Autowired
     private RedisUtil redisUtil;
-    
+
     //将配置文件中存的值取过来
     @Value("${jwt.tokenHead}")
     private String tokenHead;
-    
-    
+
+
     @Override
     public Customer getCustomer(String username) {
         return getOne(new LambdaQueryWrapper<Customer>().eq(Customer::getUsername, username)
                 .eq(Customer::isEnabled, true));
     }
-    
+
     @Override
     public List<Authority> getCustomerAuthority(String username) {
-        Customer customer = getOne(new LambdaQueryWrapper<Customer>().eq(Customer::getUsername, username));
-        QueryWrapper<CustomerAuthority> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("authority_id", customer.getId());
-        List<CustomerAuthority> customerAuthorities = customerAuthorityService.list(queryWrapper);
-        List<Integer> authoritiesId =
-                customerAuthorities.stream().map(CustomerAuthority::getAuthorityId).collect(Collectors.toList());
+        Customer customer = getOne(new LambdaQueryWrapper<Customer>().eq(Customer::getUsername, username)
+                .eq(Customer::isEnabled, true));
+        List<Integer> authoritiesId = customerAuthorityService.listObjs(
+                new LambdaQueryWrapper<CustomerAuthority>()
+                        .eq(CustomerAuthority::getCustomerId, customer.getId())
+                        .select(CustomerAuthority::getAuthorityId),  s -> (Integer) s);
+//        List<Integer> authoritiesId =
+//                customerAuthorities.stream().map(CustomerAuthority::getAuthorityId).collect(Collectors.toList());
         List<Authority> authorities = authorityService.listByIds(authoritiesId);
         authorities.forEach(System.out::println);
         return authorities;
     }
-    
+
     /**
      * 登录之后返回token
      *
@@ -88,9 +88,10 @@ public class CustomerServiceImpl extends ServiceImpl<CustomerMapper, Customer>
     @Override
     public JsonResult<?> login(String username, String password, String code, HttpServletRequest request) {
         String captcha = (String) request.getSession().getAttribute("captcha");
-        if (StringUtils.isEmpty(code) || !captcha.equalsIgnoreCase(code)) {
+        if (StringUtils.isEmpty(code) || StringUtils.isEmpty(captcha) || !captcha.equalsIgnoreCase(code)) {
             return new FailResult<>("验证码不正确，请重新输入");
         }
+        request.getSession().removeAttribute("captcha");
         //security主要是通过：UserDetailsService里面的username来实现登录的
         //将浏览器传过来的username，放进去。 返回的是userDetails用户详细信息（账号、密码、权限等等）
         UserDetails userDetails = new Customer();

@@ -1,14 +1,5 @@
 package pers.zitianqiong.utils;
 
-import java.awt.*;
-import java.awt.geom.RoundRectangle2D;
-import java.awt.image.BufferedImage;
-import java.io.*;
-import java.util.HashMap;
-import java.util.Hashtable;
-import javax.imageio.ImageIO;
-import javax.servlet.ServletOutputStream;
-
 import cn.hutool.core.codec.Base64;
 import com.google.zxing.*;
 import com.google.zxing.client.j2se.BufferedImageLuminanceSource;
@@ -17,8 +8,17 @@ import com.google.zxing.common.BitMatrix;
 import com.google.zxing.common.HybridBinarizer;
 import com.google.zxing.qrcode.QRCodeWriter;
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
+import jakarta.servlet.ServletOutputStream;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+
+import javax.imageio.ImageIO;
+import java.awt.*;
+import java.awt.geom.RoundRectangle2D;
+import java.awt.image.BufferedImage;
+import java.io.*;
+import java.util.HashMap;
+import java.util.Hashtable;
 
 /**
  * <p>描述：二维码生成工具类</p>

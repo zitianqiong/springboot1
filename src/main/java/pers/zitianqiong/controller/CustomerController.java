@@ -1,7 +1,7 @@
 package pers.zitianqiong.controller;
 
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson2.JSONArray;
+import com.alibaba.fastjson2.JSONObject;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
@@ -149,11 +149,11 @@ public class       CustomerController {
         return Result.success();
     }
 
-    @GetMapping("test")
+    @GetMapping("testTransactionalException")
     @ResponseBody
     public String test() throws InterruptedException {
-        log.info("{}", deptService.count());
-        threadPoolTaskExecutor.execute(()-> deptService.trans());
+        log.info("部门表数{}", deptService.count());
+        threadPoolTaskExecutor.execute(deptService::trans);
         return "ok";
     }
 }

@@ -30,13 +30,15 @@ spring:
       max-request-size: 50MB
   banner:
     location: classpath:banner.txt
+  main:
+    allow-bean-definition-overriding: true
 jwt:
   # JWT存储的请求头
   tokenHeader: bearer-key
   # JWT 加解密使用的密钥
   secret: springboot-secret
-  # JWT的超期限时间（60*60*24）
-  expiration: 604800
+  # JWT的超期限时间（60*60）
+  expiration: 3600
   # JWT 负载中拿到开头
   tokenHead: Bearer
 netty:

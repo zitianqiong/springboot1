@@ -1,12 +1,12 @@
 package pers.zitianqiong.service;
 
-import java.util.List;
-import javax.servlet.http.HttpServletRequest;
-
 import com.baomidou.mybatisplus.extension.service.IService;
+import jakarta.servlet.http.HttpServletRequest;
 import pers.zitianqiong.common.JsonResult;
 import pers.zitianqiong.domain.Authority;
 import pers.zitianqiong.domain.Customer;
+
+import java.util.List;
 
 /**
  * 用户服务层

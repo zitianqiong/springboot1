@@ -1,11 +1,9 @@
 package pers.zitianqiong.filter;
 
-import java.io.IOException;
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,6 +17,8 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import pers.zitianqiong.utils.JwtTokenUtil;
 import pers.zitianqiong.utils.RedisUtil;
 
+import java.io.IOException;
+
 /**
  * <p>描述：JWT 登录授权过滤器 前置拦截</p>
  *
@@ -26,12 +26,12 @@ import pers.zitianqiong.utils.RedisUtil;
  * @date 2022/11/2
  */
 @Slf4j
-public class JwtAuthencationTokenFilter extends OncePerRequestFilter {
+public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
     @Value("${jwt.tokenHeader}")
     private String tokenHeader;
     @Value("${jwt.tokenHead}")
     private String tokenHead;
-    
+
     @Autowired
     private JwtTokenUtil jwtTokenUtil;
     //登录需要userDetailsService
@@ -39,7 +39,7 @@ public class JwtAuthencationTokenFilter extends OncePerRequestFilter {
     private UserDetailsService userDetailsService;
     @Autowired
     private RedisUtil redisUtil;
-    
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse httpServletResponse,
                                     FilterChain filterChain) throws ServletException, IOException {
