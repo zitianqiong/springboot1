@@ -36,11 +36,11 @@ public final class QrCodeUtil {
     private static final int LOGO_WIDTH = 60;
     // LOGO高度
     private static final int LOGO_HEIGHT = 60;
-    
+
     private QrCodeUtil(){
-    
+
     }
-    
+
     /**
      * 生成二维码
      *
@@ -72,7 +72,7 @@ public final class QrCodeUtil {
         QrCodeUtil.insertImage(image, logoPath, needCompress);
         return image;
     }
-    
+
     /**
      * 插入LOGO
      *
@@ -85,7 +85,7 @@ public final class QrCodeUtil {
                                     boolean needCompress) throws Exception {
         File file = new File(logoPath);
         if (!file.exists()) {
-            System.err.println("" + logoPath + "   该文件不存在！");
+            log.error( "{}该文件不存在！", logoPath);
             return;
         }
         Image src = ImageIO.read(new File(logoPath));
@@ -117,7 +117,7 @@ public final class QrCodeUtil {
         graph.draw(shape);
         graph.dispose();
     }
-    
+
     /**
      * 生成二维码（指定路径保存）
      *
@@ -134,7 +134,7 @@ public final class QrCodeUtil {
         // ImageIO.write(image, FORMAT_NAME, new File(destPath+"/"+file));
         ImageIO.write(image, FORMAT, new File(destPath));
     }
-    
+
     /**
      * 生成二维码(直接将二维码以图片输出流返回）
      *
@@ -147,7 +147,7 @@ public final class QrCodeUtil {
     public static BufferedImage encode(String content, String imgPath, boolean needCompress) throws Exception {
         return QrCodeUtil.createImage(content, imgPath, needCompress);
     }
-    
+
     /**
      * 生成路径
      * @param destPath 文件路径
@@ -159,7 +159,7 @@ public final class QrCodeUtil {
             file.mkdirs();
         }
     }
-    
+
     /**
      * 生成二维码(内嵌LOGO)
      *
@@ -174,7 +174,7 @@ public final class QrCodeUtil {
         BufferedImage image = QrCodeUtil.createImage(content, logoPath, needCompress);
         ImageIO.write(image, FORMAT, output);
     }
-    
+
     /**
      * 获取指定文件的输入流，获取logo
      *
@@ -184,7 +184,7 @@ public final class QrCodeUtil {
     public static InputStream getResourceAsStream(String logoPath) {
         return QrCodeUtil.class.getResourceAsStream(logoPath);
     }
-    
+
     /**
      * 解析二维码
      *
@@ -206,7 +206,7 @@ public final class QrCodeUtil {
         result = new MultiFormatReader().decode(bitmap, hints);
         return result.getText();
     }
-    
+
     /**
      * 解析二维码
      *
@@ -217,7 +217,7 @@ public final class QrCodeUtil {
     public static String decode(String path) throws Exception {
         return QrCodeUtil.decode(new File(path));
     }
-    
+
     /**
      * 生成二维码
      * @param content 内容
@@ -236,11 +236,11 @@ public final class QrCodeUtil {
             hints.put(EncodeHintType.CHARACTER_SET, CHARSET); // 指定字符编码为“utf-8”
             hints.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.M); // 指定二维码的纠错等级为中级
             hints.put(EncodeHintType.MARGIN, 2); // 设置图片的边距
-            
+
             try {
                 QRCodeWriter writer = new QRCodeWriter();
                 BitMatrix bitMatrix = writer.encode(content, BarcodeFormat.QR_CODE, width, height, hints);
-                
+
                 BufferedImage bufferedImage = MatrixToImageWriter.toBufferedImage(bitMatrix);
                 ImageIO.write(bufferedImage, "png", os);
                 //原生转码前面没有 data:image/png;base64 这些字段，返回给前端是无法被解析，可以让前端加，也可以在下面加上
@@ -252,7 +252,7 @@ public final class QrCodeUtil {
         }
         return null;
     }
-    
+
     //测试一：
     /*public static void main(String[] args) throws Exception {
         String text = "kfc_crazy_thursday_vme50";

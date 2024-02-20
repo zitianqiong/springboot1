@@ -10,5 +10,4 @@ import pers.zitianqiong.domain.Dept;
 */
 public interface DeptService extends IService<Dept> {
 
-    void trans();
 }

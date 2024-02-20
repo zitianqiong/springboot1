@@ -38,21 +38,42 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 @RequiredArgsConstructor(onConstructor_ = {@Autowired})
 public class       CustomerController {
-    
+
     private final CustomerService userService;
     private final UserDetailsService userDetailsService;
     private final RedisUtil redisUtil;
     private final DeptService deptService;
     @Autowired
     ThreadPoolTaskExecutor threadPoolTaskExecutor;
-    
+
     private final long EXPIRE_TIME = 1000L;
-    
+
+    @GetMapping("/testCache")
+    @Cacheable(value = "testCache", key = "'test'")
+    public String testcache(){
+        log.info("执行方法");
+        return "testCache";
+    }
+
+    @GetMapping("/testCache2")
+    @Cacheable(value = "testCache", key = "'test1'", cacheManager = "caffeineCacheManager")
+    public String testcache2(){
+        log.info("执行方法2");
+        return "testCache2";
+    }
+
+    @GetMapping("/testCache3")
+    @Cacheable(value = "testCache", key = "'test1'", cacheManager = "redisCacheManager")
+    public String testcache3(){
+        log.info("执行方法3");
+        return "testCache3";
+    }
+
     /**
      * @return List<User>
      **/
     @GetMapping("/users")
-//    @Cacheable(value = "userList")
+   @Cacheable(value = "userList", key = "'users'")
     public List<Customer> getUsers() {
         String series = "userList";
         List<Customer> userList;
@@ -68,7 +89,7 @@ public class       CustomerController {
         }
         return userList;
     }
-    
+
     /**
      * 当前用户
      * @param principal 用户信息
@@ -89,7 +110,7 @@ public class       CustomerController {
         }
         return user;
     }
-    
+
     /**
      * @param id .
      * @return User 用户
@@ -99,7 +120,7 @@ public class       CustomerController {
     public Customer postUser(int id) {
         return  (Customer) userDetailsService.loadUserByUsername(userService.getById(id).getUsername());
     }
-    
+
     /**
      * 删除缓存
      **/
@@ -108,7 +129,7 @@ public class       CustomerController {
     public void evict(Integer id) {
         log.info("Evicting");
     }
-    
+
     /**
      *
      * @param deptVO 部门
@@ -122,7 +143,7 @@ public class       CustomerController {
         deptService.save(dept);
         return Result.success();
     }
-    
+
     /**
      * @return List<User>
      **/
@@ -132,7 +153,7 @@ public class       CustomerController {
     public Principal getTokenInfo(Principal principal) {
         return principal;
     }
-    
+
     /**
      * 用户退出
      * @return 响应
@@ -149,11 +170,4 @@ public class       CustomerController {
         return Result.success();
     }
 
-    @GetMapping("testTransactionalException")
-    @ResponseBody
-    public String test() throws InterruptedException {
-        log.info("部门表数{}", deptService.count());
-        threadPoolTaskExecutor.execute(deptService::trans);
-        return "ok";
-    }
 }

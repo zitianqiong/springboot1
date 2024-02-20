@@ -1,20 +1,11 @@
 package pers.zitianqiong.domain;
 
-import java.io.Serializable;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.Collection;
-import java.util.List;
-import java.util.stream.Collectors;
-
 import com.baomidou.mybatisplus.annotation.*;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
-import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AccessLevel;
@@ -26,6 +17,12 @@ import org.springframework.security.core.CredentialsContainer;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+
+import java.io.Serializable;
+import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 用户表
@@ -45,25 +42,17 @@ public class Customer implements Serializable, UserDetails, CredentialsContainer
      */
     @TableId(type = IdType.AUTO)
     private Integer id;
-    
+
     /**
      * 昵称
      */
     private String username;
-    
+
     /**
      * 密码
      */
     private String password;
-    
-    /**
-     * 年龄
-     */
-    @JsonFormat(pattern = "yyyy-MM-dd",timezone = "Asia/Shanghai")
-    @JsonSerialize(using = LocalDateSerializer.class)
-    @JsonDeserialize(using = LocalDateDeserializer.class)
-    private LocalDate birthday;
-    
+
     /**
      * 创建时间
      */
@@ -72,7 +61,7 @@ public class Customer implements Serializable, UserDetails, CredentialsContainer
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     private LocalDateTime createTime;
-    
+
     /**
      * 更新时间
      */
@@ -81,32 +70,32 @@ public class Customer implements Serializable, UserDetails, CredentialsContainer
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     @TableField("update_time")
     private LocalDateTime updateTime;
-    
+
     /**
      * 乐观锁版本
      */
     @Version
     private Integer version;
-    
+
     //加上这个注解，就不会生成该字段的get，set方法
     @Getter(AccessLevel.NONE)
     private Boolean enabled;
-    
+
     @TableField(exist = false)
     private List<Authority> roles;
-    
+
     @TableField(exist = false)
-    List<SimpleGrantedAuthority> authorities;
-    
+    private List<SimpleGrantedAuthority> authorities;
+
     /**
      * 是否被删除0：正常，1：删除
      */
     @TableLogic
     private Integer deleted;
-    
+
     @TableField(exist = false)
     private static final long serialVersionUID = -116846212116874336L;
-    
+
     /**
      * 已经是SpringSecurity框架了
      * 真正登录的方法就是UserDetails的Username
@@ -126,27 +115,27 @@ public class Customer implements Serializable, UserDetails, CredentialsContainer
         }
         return null;
     }
-    
+
     @Override
     public boolean isAccountNonExpired() {
         return true;
     }
-    
+
     @Override
     public boolean isAccountNonLocked() {
         return true;
     }
-    
+
     @Override
     public boolean isCredentialsNonExpired() {
         return true;
     }
-    
+
     @Override
     public boolean isEnabled() {
         return enabled;
     }
-    
+
     @Override
     public void eraseCredentials() {
         // 设置 password 为 null

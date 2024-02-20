@@ -1,16 +1,11 @@
 package pers.zitianqiong.config;
 
 import com.alibaba.fastjson2.support.spring6.data.redis.FastJsonRedisSerializer;
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.annotation.PropertyAccessor;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.cache.Cache;
-import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CachingConfigurerSupport;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cache.caffeine.CaffeineCacheManager;
@@ -18,6 +13,7 @@ import org.springframework.cache.interceptor.CacheErrorHandler;
 import org.springframework.cache.interceptor.CacheResolver;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Role;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
 import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
@@ -27,8 +23,6 @@ import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -38,26 +32,25 @@ import java.util.concurrent.TimeUnit;
 @Configuration
 @EnableCaching
 @Slf4j
-public class RedisConfig extends CachingConfigurerSupport {
+@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+public class CacheConfig extends CachingConfigurerSupport {
 
     @Autowired
     private RedisConnectionFactory connectionFactory;
 
+    @Bean
     @Override
     public CacheResolver cacheResolver() {
         // 通过caffeine实现的自定义堆内存缓存管理器
-        CacheManager caffeineCacheManager = caffeineCacheManager();
-        CacheManager redisCacheManager = redisCacheManager(connectionFactory);
-        List<CacheManager> list = new ArrayList<>();
         // 优先读取堆内存缓存
-        list.add(caffeineCacheManager);
-//         堆内存缓存读取不到该key时再读取redis缓存
-        list.add(redisCacheManager);
-        return new CustomCacheResolver(list);
+        CaffeineCacheManager caffeineCacheManager = caffeineCacheManager();
+        // 堆内存缓存读取不到该key时再读取redis缓存
+        RedisCacheManager redisCacheManager = redisCacheManager(connectionFactory);
+        return new MultipleCacheResolver(caffeineCacheManager, redisCacheManager);
     }
 
     @Bean
-    public CacheManager caffeineCacheManager() {
+    public CaffeineCacheManager caffeineCacheManager() {
         CaffeineCacheManager cacheManager = new CaffeineCacheManager();
         cacheManager.setCaffeine(
                 Caffeine.newBuilder()
@@ -70,37 +63,11 @@ public class RedisConfig extends CachingConfigurerSupport {
     }
 
     /**
-     * 配置API的序列化
-     * @return RedisTemplate<Object>
-     **/
-    @Bean
-    public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory factory) {
-        RedisTemplate<String, Object> template = new RedisTemplate<>();
-        RedisSerializer<String> redisSerializer = new StringRedisSerializer();
-        FastJsonRedisSerializer<Object> fastJsonRedisSerializer = new FastJsonRedisSerializer<>(Object.class);
-        template.setConnectionFactory(factory);
-
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY);
-        mapper.activateDefaultTyping(LaissezFaireSubTypeValidator.instance,
-                ObjectMapper.DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY);
-
-        //key序列化
-        template.setKeySerializer(redisSerializer);
-        template.setHashKeySerializer(redisSerializer);
-        //value序列化
-        template.setValueSerializer(fastJsonRedisSerializer);
-        template.setHashValueSerializer(fastJsonRedisSerializer);
-        template.afterPropertiesSet();
-        return template;
-    }
-
-    /**
      * 想要注解使用自定义配置cache Manager
      * @return CacheManager
      **/
     @Bean
-    public CacheManager redisCacheManager(RedisConnectionFactory factory) {
+    public RedisCacheManager redisCacheManager(RedisConnectionFactory factory) {
         RedisSerializer<String> redisSerializer = new StringRedisSerializer();
         FastJsonRedisSerializer<Object> fastJsonRedisSerializer = new FastJsonRedisSerializer<>(Object.class);
 
@@ -114,6 +81,27 @@ public class RedisConfig extends CachingConfigurerSupport {
         return RedisCacheManager.builder(factory)
                 .cacheDefaults(config)
                 .build();
+    }
+
+    /**
+     * 配置API的序列化
+     * @return RedisTemplate<Object>
+     **/
+    @Bean
+    public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory factory) {
+        RedisTemplate<String, Object> template = new RedisTemplate<>();
+        RedisSerializer<String> redisSerializer = new StringRedisSerializer();
+        FastJsonRedisSerializer<Object> fastJsonRedisSerializer = new FastJsonRedisSerializer<>(Object.class);
+        template.setConnectionFactory(factory);
+
+        //key序列化
+        template.setKeySerializer(redisSerializer);
+        template.setHashKeySerializer(redisSerializer);
+        //value序列化
+        template.setValueSerializer(fastJsonRedisSerializer);
+        template.setHashValueSerializer(fastJsonRedisSerializer);
+        template.afterPropertiesSet();
+        return template;
     }
 
     /**

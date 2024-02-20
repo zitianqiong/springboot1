@@ -44,3 +44,5 @@ jwt:
 netty:
   port: 8082
   path: /channel
+access-log:
+  excludeUris: /webjars/**,/v3/api-docs/**,/swagger-ui/**

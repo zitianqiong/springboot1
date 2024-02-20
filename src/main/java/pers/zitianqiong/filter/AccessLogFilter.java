@@ -2,7 +2,6 @@ package pers.zitianqiong.filter;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebFilter;
@@ -12,6 +11,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
@@ -26,10 +27,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
-import java.util.Enumeration;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * <p>描述：</p>
@@ -39,8 +37,12 @@ import java.util.Set;
  */
 @WebFilter(filterName = "accessLogFilter", urlPatterns = "/*")
 @Slf4j
+@Configuration
+@ConfigurationProperties(
+        prefix = "access-log"
+)
 public class AccessLogFilter extends OncePerRequestFilter {
-    private Set<String> excludeUris = Sets.newHashSet();
+    private Set<String> excludeUris = new HashSet<>();
     private static final PathMatcher URI_PATH_MATCHER = new AntPathMatcher();
     private static final List<String> DEFAULT_DOWNLOAD_CONTENT_TYPE = Lists.newArrayList(
             "application/vnd.ms-excel", //.xls
@@ -52,7 +54,7 @@ public class AccessLogFilter extends OncePerRequestFilter {
             MediaType.TEXT_PLAIN_VALUE, //.txt
             "application/x-gzip" //.gz
     );
-    
+
     /**
      * 过来uri
      *
@@ -72,23 +74,23 @@ public class AccessLogFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
             return;
         }
-        
+
         final String requestMethod = request.getMethod();
         final boolean shouldWrapMethod = StringUtils.equalsIgnoreCase(requestMethod, HttpMethod.PUT.name())
                 || StringUtils.equalsIgnoreCase(requestMethod, HttpMethod.POST.name());
-        
+
         final boolean isFirstRequest = !isAsyncDispatch(request);
-        
+
         final boolean shouldWrapRequest = isFirstRequest
                 && !(request instanceof ContentCachingRequestWrapper)
                 && shouldWrapMethod;
         final HttpServletRequest requestToUse = shouldWrapRequest ? new ContentCachingRequestWrapper(request) : request;
-        
+
         final boolean shouldWrapResponse = !(response instanceof ContentCachingResponseWrapper)
                 && shouldWrapMethod;
         final HttpServletResponse responseToUse = shouldWrapResponse
                 ? new ContentCachingResponseWrapper(response) : response;
-        
+
         final long startTime = System.currentTimeMillis();
         Throwable t = null;
         try {
@@ -100,7 +102,7 @@ public class AccessLogFilter extends OncePerRequestFilter {
             doSaveAccessLog(requestToUse, responseToUse, System.currentTimeMillis() - startTime, t);
         }
     }
-    
+
     /**
      * 保存日志
      *
@@ -125,12 +127,12 @@ public class AccessLogFilter extends OncePerRequestFilter {
             final String requestString = isUpload(request) ? StringUtils.EMPTY : getRequestString(request);
             final String responseString = isDownload(response) ? StringUtils.EMPTY : getResponseString(response);
             final int responseStatus = response.getStatus();
-            
-            final List<String> logs = Lists.newArrayList();
-            logs.add("ip:{" + requestIp + "}");
-            logs.add("uri:{" + requestUri + "}");
+
+            final List<String> logs = new ArrayList<>();
+            logs.add("ip:" + requestIp);
+            logs.add("uri:" + requestUri);
 //            logs.add("headers=" + requestHeaders);
-            logs.add("状态=" + responseStatus);
+            logs.add("code:" + responseStatus);
             if (request.getContentType() != null) {
                 logs.add("请求类型:" + request.getContentType());
             }
@@ -147,7 +149,7 @@ public class AccessLogFilter extends OncePerRequestFilter {
                 logs.add("响应=" + responseString);
             }
             logs.add("耗时:" + useTime + "ms");
-            
+
             logger.info(String.join(", ", logs));
         } catch (Throwable e) {
             logger.error("保存访问日志时出现异常", e);
@@ -155,7 +157,7 @@ public class AccessLogFilter extends OncePerRequestFilter {
             copyResponse(response);
         }
     }
-    
+
     /**
      * 获得请求ip
      *
@@ -180,7 +182,7 @@ public class AccessLogFilter extends OncePerRequestFilter {
         }
         return ip;
     }
-    
+
     /**
      * 获得请求头
      *
@@ -189,14 +191,14 @@ public class AccessLogFilter extends OncePerRequestFilter {
      */
     private String getRequestHeaders(final HttpServletRequest request) {
         final Enumeration<String> headerNames = request.getHeaderNames();
-        final List<String> headers = Lists.newArrayList();
+        final List<String> headers = new ArrayList<>();
         while (headerNames.hasMoreElements()) {
             final String key = headerNames.nextElement();
             headers.add(key + ':' + request.getHeader(key));
         }
         return '[' + String.join(",", headers) + ']';
     }
-    
+
     /**
      * 获得请求参数
      *
@@ -205,7 +207,7 @@ public class AccessLogFilter extends OncePerRequestFilter {
      */
     private String getRequestParams(final HttpServletRequest request) {
         final Map<String, String[]> requestParams = Maps.newHashMap(request.getParameterMap());
-        final List<String> pairs = Lists.newArrayList();
+        final List<String> pairs = new ArrayList<>();
         if (MapUtils.isNotEmpty(requestParams)) {
             for (final Map.Entry<String, String[]> entry : requestParams.entrySet()) {
                 final String name = entry.getKey();
@@ -228,7 +230,7 @@ public class AccessLogFilter extends OncePerRequestFilter {
         }
         return requestParamsStr;
     }
-    
+
     /**
      * 是否上传
      *
@@ -242,7 +244,7 @@ public class AccessLogFilter extends OncePerRequestFilter {
         }
         return StringUtils.containsIgnoreCase(contentType, MediaType.MULTIPART_FORM_DATA_VALUE);
     }
-    
+
     /**
      * 是否下载
      *
@@ -256,7 +258,7 @@ public class AccessLogFilter extends OncePerRequestFilter {
         }
         return DEFAULT_DOWNLOAD_CONTENT_TYPE.stream().anyMatch(it -> StringUtils.equalsIgnoreCase(it, contentType));
     }
-    
+
     /**
      * 获得请求
      *
@@ -276,7 +278,7 @@ public class AccessLogFilter extends OncePerRequestFilter {
         }
         return StringUtils.EMPTY;
     }
-    
+
     /**
      * 获得响应
      *
@@ -288,12 +290,12 @@ public class AccessLogFilter extends OncePerRequestFilter {
                 WebUtils.getNativeResponse(response, ContentCachingResponseWrapper.class);
         if (wrapper != null) {
             final byte[] buf = wrapper.getContentAsByteArray();
-//                return new String(buf, wrapper.getCharacterEncoding()).replaceAll("\n|\r", "");
+               // return new String(buf, wrapper.getCharacterEncoding()).replaceAll("\n|\r", "");
             return new String(buf, StandardCharsets.UTF_8).replaceAll("\n|\r", "");
         }
         return StringUtils.EMPTY;
     }
-    
+
     /**
      * 复制响应
      *
@@ -309,7 +311,7 @@ public class AccessLogFilter extends OncePerRequestFilter {
             }
         }
     }
-    
+
     /**
      * @param uri 地址
      * @return boolean
@@ -325,11 +327,11 @@ public class AccessLogFilter extends OncePerRequestFilter {
         }
         return false;
     }
-    
+
     /**
      * @param excludeUris 地址
      */
     public void setExcludeUris(final Set<String> excludeUris) {
-        this.excludeUris = excludeUris == null ? Sets.newHashSet() : excludeUris;
+        this.excludeUris = excludeUris == null ? new HashSet<>() : excludeUris;
     }
 }

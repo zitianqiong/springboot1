@@ -64,14 +64,11 @@ public class CustomerServiceImpl extends ServiceImpl<CustomerMapper, Customer>
 
     @Override
     public List<Authority> getCustomerAuthority(String username) {
-        Customer customer = getOne(new LambdaQueryWrapper<Customer>().eq(Customer::getUsername, username)
-                .eq(Customer::isEnabled, true));
+        Customer customer = getCustomer(username);
         List<Integer> authoritiesId = customerAuthorityService.listObjs(
                 new LambdaQueryWrapper<CustomerAuthority>()
                         .eq(CustomerAuthority::getCustomerId, customer.getId())
                         .select(CustomerAuthority::getAuthorityId),  s -> (Integer) s);
-//        List<Integer> authoritiesId =
-//                customerAuthorities.stream().map(CustomerAuthority::getAuthorityId).collect(Collectors.toList());
         List<Authority> authorities = authorityService.listByIds(authoritiesId);
         authorities.forEach(System.out::println);
         return authorities;

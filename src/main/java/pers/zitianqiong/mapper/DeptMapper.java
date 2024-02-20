@@ -1,6 +1,7 @@
 package pers.zitianqiong.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import org.springframework.stereotype.Repository;
 import pers.zitianqiong.domain.Dept;
 
 /**
@@ -9,6 +10,7 @@ import pers.zitianqiong.domain.Dept;
  * @createDate 2022-07-07 11:20:50
  * @Entity pers.zitianqiong.domain.Dept
  */
+@Repository
 public interface DeptMapper extends BaseMapper<Dept> {
 
 }
