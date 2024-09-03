@@ -1,14 +1,14 @@
 package pers.zitianqiong.config.thread;
 
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.ThreadPoolExecutor;
-
 import org.apache.commons.lang3.concurrent.BasicThreadFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import pers.zitianqiong.utils.Threads;
+
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.ThreadPoolExecutor;
 
 /**
  * 线程池配置
@@ -19,13 +19,13 @@ import pers.zitianqiong.utils.Threads;
 public class ThreadPoolConfig
 {
     // 核心线程池大小
-    private final int corePoolSize = 50;
+    private final int corePoolSize = 10;
 
     // 最大可创建的线程数
-    private final int maxPoolSize = 200;
+    private final int maxPoolSize = 50;
 
     // 队列最大长度
-    private final int queueCapacity = 1000;
+    private final int queueCapacity = 100;
 
     // 线程池维护线程所允许的空闲时间
     private final int keepAliveSeconds = 300;

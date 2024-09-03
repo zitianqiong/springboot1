@@ -4,10 +4,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.servlet.ServletComponentScan;
-import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.env.Environment;
-import pers.zitianqiong.utils.StringUtils;
+import pers.zitianqiong.utils.bean.BeanUtils;
 
 import java.net.InetAddress;
 import java.net.NetworkInterface;
@@ -18,7 +17,6 @@ import java.util.Enumeration;
  * @author zitianqiong
  */
 @SpringBootApplication
-@EnableCaching
 @Slf4j
 @ServletComponentScan
 public class Springboot1Application {
@@ -28,28 +26,32 @@ public class Springboot1Application {
      * @throws UnknownHostException UnknownHostException
      **/
     public static void main(String[] args) throws UnknownHostException {
+        System.setProperty("log4j2.contextSelector", "org.apache.logging.log4j.core.async.AsyncLoggerContextSelector");
         ConfigurableApplicationContext application = SpringApplication.run(Springboot1Application.class, args);
+        BeanUtils.setApplicationContext(application);
+
         Environment env = application.getEnvironment();
         InetAddress address = getLocalHostExactAddress();
         if (address != null){
             String ip = address.getHostAddress();
             String port = env.getProperty("server.port");
             String path = env.getProperty("server.servlet.context-path");
-            if (path != null){
-                path = "/"+path;
-            }else{
-                path = StringUtils.EMPTY;
+            if (path == null){
+                path = "/";
+            }else if(!path.endsWith("/")){
+                path = path + "/";
             }
             boolean swagger = Boolean.parseBoolean(env.getProperty("springdoc.swagger-ui.enabled"));
 
             log.info("\n----------------------------------------------------------\n\t"
                             + "系统应用正在运行! 请访问URLs:\n\t"
-                            + "本地: \t\thttp://localhost:{}{}/\n\t"
-                            + "External: \thttp://{}:{}{}/\n"
-                            + (swagger? "\tdoc: \t\thttp://localhost:{}{}/doc.html\n" : "")
-                            + (swagger? "\tswagger: \thttp://localhost:{}{}/swagger-ui/index.html\n" : "")
+                            + "本地: \t\thttp://localhost:{}{}\n\t"
+                            + "外部访问: \thttp://{}:{}{}\n"
+                            + (swagger? "\tdoc: \t\thttp://{}:{}{}doc.html\n" : "")
+                            + (swagger? "\tswagger: \thttp://{}:{}{}swagger-ui/index.html\n" : "")
                             + "----------------------------------------------------------"
-                    , port, path, ip, port, path, port, path, port, path);
+                    , port, path, ip, port, path, ip, port, path, ip, port, path);
+
         }
 
     }

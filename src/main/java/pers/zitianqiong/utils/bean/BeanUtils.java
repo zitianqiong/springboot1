@@ -1,5 +1,7 @@
 package pers.zitianqiong.utils.bean;
 
+import org.springframework.context.ApplicationContext;
+
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,6 +23,16 @@ public class BeanUtils extends org.springframework.beans.BeanUtils
 
     /** * 匹配setter方法的正则表达式 */
     private static final Pattern SET_PATTERN = Pattern.compile("set(\\p{javaUpperCase}\\w*)");
+
+    private static ApplicationContext applicationContext;
+
+    public static void setApplicationContext(ApplicationContext applicationContext) {
+        BeanUtils.applicationContext = applicationContext;
+    }
+
+    public static Object getBean(String beanId) {
+        return applicationContext.getBean(beanId);
+    }
 
     /**
      * Bean属性复制工具方法。

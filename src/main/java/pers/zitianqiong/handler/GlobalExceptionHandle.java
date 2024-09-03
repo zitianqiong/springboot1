@@ -9,7 +9,7 @@ import org.springframework.validation.BindException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import pers.zitianqiong.common.ErrorResult;
+import pers.zitianqiong.common.Result;
 import pers.zitianqiong.common.ResultCode;
 
 import java.sql.SQLException;
@@ -26,7 +26,7 @@ import java.util.Objects;
 @RestControllerAdvice(basePackages = "pers.zitianqiong.controller")
 @Slf4j
 public class GlobalExceptionHandle {
-    
+
     /**
      * 用户未找到异常
      *
@@ -34,15 +34,15 @@ public class GlobalExceptionHandle {
      * @return 错误返回体
      */
     @ExceptionHandler(UsernameNotFoundException.class)
-    public ErrorResult handleUsernameNotFoundException(UsernameNotFoundException e) {
-        return ErrorResult.fail("用户不存在", e);
+    public Result handleUsernameNotFoundException(UsernameNotFoundException e) {
+        return Result.fail("用户不存在");
     }
-    
+
     @ExceptionHandler(AccessDeniedException.class)
     public void handleUsernameNotFoundException(AccessDeniedException e) {
         throw e;
     }
-    
+
     /**
      * sql异常
      *
@@ -51,15 +51,15 @@ public class GlobalExceptionHandle {
      * @return 错误返回体
      */
     @ExceptionHandler(SQLException.class)
-    public ErrorResult mySqlException(HttpServletRequest req, SQLException e) {
+    public Result mySqlException(HttpServletRequest req, SQLException e) {
         if (e instanceof SQLIntegrityConstraintViolationException) {
             log.error("URL:{} ,该数据有关联数据，操作失败, 异常名:", req.getRequestURI(), e);
-            return ErrorResult.fail("该数据有关联数据，操作失败", e);
+            return Result.fail("该数据有关联数据，操作失败");
         }
         log.error("URL:{} ,数据库异常，操作失败！异常名:", req.getRequestURI(), e);
-        return ErrorResult.fail("数据库异常，操作失败", e);
+        return Result.fail("数据库异常，操作失败");
     }
-    
+
     /**
      * 处理空指针的异常
      *
@@ -68,12 +68,12 @@ public class GlobalExceptionHandle {
      * @return 错误返回体
      */
     @ExceptionHandler(NullPointerException.class)
-    public ErrorResult exceptionHandler(HttpServletRequest req, NullPointerException e) {
-        ErrorResult error = ErrorResult.fail(ResultCode.NULL_POINTER_EXCEPTION, e);
+    public Result exceptionHandler(HttpServletRequest req, NullPointerException e) {
+        Result error = Result.fail(ResultCode.NULL_POINTER_EXCEPTION);
         log.error("URL:{} ,发生空指针异常！异常名:", req.getRequestURI(), e);
         return error;
     }
-    
+
     /**
      * 绑定异常
      *
@@ -82,25 +82,25 @@ public class GlobalExceptionHandle {
      * @return 错误返回体
      */
     @ExceptionHandler(BindException.class)
-    public ErrorResult exceptionHandler(HttpServletRequest req, BindException e) {
+    public Result exceptionHandler(HttpServletRequest req, BindException e) {
         String failMsg = Objects.requireNonNull(e.getBindingResult().getFieldError()).getDefaultMessage();
-        ErrorResult error = ErrorResult.fail(ResultCode.SYSTEM_EXCEPTION, e, failMsg);
+        Result error = Result.fail(failMsg);
         log.error("URL:{} ,绑定异常:{} ", req.getRequestURI(), failMsg);
         return error;
     }
-    
+
     /**
      * @param request 请求
      * @param e       异常
      * @return 响应
      */
     @ExceptionHandler(Exception.class)
-    public ErrorResult exceptionHandler(HttpServletRequest request, Exception e) {
-        ErrorResult error = ErrorResult.fail(ResultCode.SYSTEM_EXCEPTION, e);
+    public Result exceptionHandler(HttpServletRequest request, Exception e) {
+        Result error = Result.fail(ResultCode.SYSTEM_EXCEPTION);
         log.error("URL:{},发生异常！异常名:", request.getRequestURI(), e);
         return error;
     }
-    
+
     /**
      * 系统异常处理
      *
@@ -110,9 +110,9 @@ public class GlobalExceptionHandle {
      */
     @ExceptionHandler(Throwable.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ErrorResult exception(HttpServletRequest request, Throwable throwable) {
+    public Result exception(HttpServletRequest request, Throwable throwable) {
         log.error("URL:{},系统异常", request.getRequestURI(), throwable);
-        return ErrorResult.fail(HttpStatus.INTERNAL_SERVER_ERROR.value(), "系统异常，请联系管理员！");
+        return Result.fail(HttpStatus.INTERNAL_SERVER_ERROR.value(), "系统异常，请联系管理员！");
     }
-    
+
 }

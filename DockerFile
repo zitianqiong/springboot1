@@ -1,0 +1,13 @@
+#https://blog.csdn.net/Pireley/article/details/132348115
+#使用java环境，anapsix/alpine-java:latest java环境的镜像
+FROM openjdk:17-jdk-alpine
+# 项目的端口，内部服务端口
+EXPOSE 8123
+# 切换到容器内部的 /workdir目录
+WORKDIR /workdir
+
+# 添加要运行的jar文件
+COPY target/springboot1-1.0.0.jar /workdir/JpaApp.jar
+CMD echo "======dockertest======"
+# 容器启动后运行的命令
+ENTRYPOINT ["java","-jar","/workdir/JpaApp.jar"]

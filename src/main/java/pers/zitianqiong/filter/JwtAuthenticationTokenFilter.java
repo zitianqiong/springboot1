@@ -61,7 +61,7 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
             }
             //token存在，用户名未登录
             if (null != userName && null == SecurityContextHolder.getContext().getAuthentication()) {
-                //登录了
+                //登录
                 UserDetails userDetails = userDetailsService.loadUserByUsername(userName);
                 //重新放到用户对象当中：返回是boolean
                 if (jwtTokenUtil.validateToken(authToken, userDetails)) {

@@ -11,7 +11,7 @@ import javax.net.ssl.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import pers.zitianqiong.domain.Constants;
+import pers.zitianqiong.common.constats.Constants;
 import pers.zitianqiong.utils.StringUtils;
 
 /**

@@ -1,0 +1,56 @@
+package pers.zitianqiong.handler;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.core.MethodParameter;
+import org.springframework.http.MediaType;
+import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.server.ServerHttpRequest;
+import org.springframework.http.server.ServerHttpResponse;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
+import pers.zitianqiong.annontation.IgnoreGlobalResponse;
+import pers.zitianqiong.common.*;
+import pers.zitianqiong.common.deprecated.JsonResult;
+import pers.zitianqiong.common.deprecated.SuccessResult;
+
+/**
+ * <p>描述：全局响应</p>
+ *
+ * @author 丛吉钰
+ * @date 2022/10/31
+ */
+@RestControllerAdvice(basePackages = "pers.zitianqiong.controller")
+public class GlobalResponseHandle implements ResponseBodyAdvice<Object> {
+    @Override
+    public boolean supports(final MethodParameter methodParameter,
+                            final Class<? extends HttpMessageConverter<?>> converterType) {
+        return !(methodParameter.getGenericParameterType().equals(JsonResult.class) ||
+                methodParameter.getGenericParameterType().equals(Result.class) ||
+                methodParameter.getDeclaringClass().isAnnotationPresent(IgnoreGlobalResponse.class) ||
+                (methodParameter.getMethod() != null && methodParameter.getMethod().isAnnotationPresent(IgnoreGlobalResponse.class))
+        );
+    }
+
+    @Override
+    public Object beforeBodyWrite(final Object body, final MethodParameter returnType,
+                                  final MediaType selectedContentType,
+                                  final Class<? extends HttpMessageConverter<?>> selectedConverterType,
+                                  final ServerHttpRequest request, final ServerHttpResponse response) {
+        if (body == null || body instanceof JsonResult) {
+            return body;
+        }
+        final SuccessResult<Object> result = new SuccessResult<>();
+        result.setCode(ResultCode.SUCCESS.getCode());
+        result.setData(body);
+        if (returnType.getGenericParameterType().equals(String.class)) {
+            ObjectMapper objectMapper = new ObjectMapper();
+            try {
+                return objectMapper.writeValueAsString(result);
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException("将 Response 对象序列化为 json 字符串时发生异常", e);
+            }
+        }
+        return result;
+    }
+}

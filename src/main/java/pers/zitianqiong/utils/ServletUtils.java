@@ -6,8 +6,8 @@ import jakarta.servlet.http.HttpSession;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
-import pers.zitianqiong.domain.Constants;
-import pers.zitianqiong.domain.Convert;
+import pers.zitianqiong.common.constats.Constants;
+import pers.zitianqiong.common.Convert;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;

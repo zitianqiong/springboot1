@@ -6,9 +6,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
-import pers.zitianqiong.common.JsonResult;
-import pers.zitianqiong.domain.LoginParam;
-import pers.zitianqiong.service.CustomerService;
+import pers.zitianqiong.common.deprecated.JsonResult;
+import pers.zitianqiong.domain.param.LoginParam;
+import pers.zitianqiong.service.ISysUserService;
 
 /**
  * <p>描述：</p>
@@ -20,8 +20,8 @@ import pers.zitianqiong.service.CustomerService;
 @AllArgsConstructor
 public class LoginController {
     //注入service
-    private final CustomerService customerService;
-    
+    private final ISysUserService userService;
+
     /**
      * 登录之后返回token
      * @param loginParam 参数
@@ -33,10 +33,10 @@ public class LoginController {
     public JsonResult<?> login(@RequestBody LoginParam loginParam,
                                HttpServletRequest request) {
         //service层login登录方法
-        return customerService.login(loginParam.getUsername(),
+        return userService.login(loginParam.getUsername(),
                 loginParam.getPassword(),
                 loginParam.getCode(),
                 request);
     }
-    
+
 }

@@ -6,7 +6,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import pers.zitianqiong.domain.Customer;
+import pers.zitianqiong.domain.SysUser;
 
 /**
  * <p>描述：</p>
@@ -18,16 +18,14 @@ import pers.zitianqiong.domain.Customer;
 public class MyUserDetailsServiceImpl implements UserDetailsService {
     @Lazy
     @Autowired
-    private CustomerService customerService;
-    
+    private ISysUserService userService;
+
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Customer customer = customerService.getCustomer(username);
-        if (customer != null) {
-            customer.setRoles(customerService.getCustomerAuthority(username));
-            return customer;
-        } else {
+        SysUser user = userService.getUser(username);
+        if (user == null) {
             throw new UsernameNotFoundException("当前用户不存在");
         }
+        return user;
     };
 }

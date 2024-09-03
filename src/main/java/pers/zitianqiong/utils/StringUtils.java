@@ -4,7 +4,7 @@ import java.util.*;
 
 import cn.hutool.core.text.StrFormatter;
 import org.springframework.util.AntPathMatcher;
-import pers.zitianqiong.domain.Constants;
+import pers.zitianqiong.common.constats.Constants;
 
 /**
  * 字符串工具类

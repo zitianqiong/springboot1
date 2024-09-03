@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import pers.zitianqiong.common.Result;
-import pers.zitianqiong.common.ResultCode;
 
 import java.io.File;
 import java.net.URLEncoder;
@@ -26,7 +25,7 @@ import java.util.UUID;
 @Controller
 @Slf4j
 public class FileController {
-    
+
     /**
      * 文件上传管理
      *
@@ -53,13 +52,13 @@ public class FileController {
                 return Result.success();
             } catch (Exception e) {
                 log.error("文件上传失败", e);
-                return Result.fail(ResultCode.FAILURE);
+                return Result.fail();
             }
         }
         // 携带上传状态信息回调到文件上传页面
         return Result.success();
     }
-    
+
     /**
      * 所有类型文件下载管理
      * @param request 请求
@@ -88,7 +87,7 @@ public class FileController {
             return new ResponseEntity<>(e.getMessage().getBytes(), HttpStatus.EXPECTATION_FAILED);
         }
     }
-    
+
     /**
      * 根据浏览器的不同进行编码设置，返回编码后的文件名
      * @param request 请求
@@ -111,5 +110,5 @@ public class FileController {
         //火狐等其它浏览器统一为ISO-8859-1编码显示
         return new String(filename.getBytes(StandardCharsets.UTF_8), StandardCharsets.ISO_8859_1);
     }
-    
+
 }

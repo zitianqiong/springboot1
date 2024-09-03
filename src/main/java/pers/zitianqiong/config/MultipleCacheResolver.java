@@ -7,7 +7,7 @@ import org.springframework.cache.caffeine.CaffeineCacheManager;
 import org.springframework.cache.interceptor.CacheOperationInvocationContext;
 import org.springframework.cache.interceptor.CacheResolver;
 import org.springframework.data.redis.cache.RedisCacheManager;
-import pers.zitianqiong.domain.CaffeineRedisCache;
+import pers.zitianqiong.common.CaffeineRedisCache;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -15,8 +15,10 @@ import java.util.Collections;
 
 public class MultipleCacheResolver implements CacheResolver {
 
-    private final RedisCacheManager redisCacheManager;
     private final CaffeineCacheManager caffeineCacheManager;
+    private final RedisCacheManager redisCacheManager;
+    public static boolean enableRedisCache = true;
+    public static int connectTimes = 0;
 
     public MultipleCacheResolver(CaffeineCacheManager caffeineCacheManager, RedisCacheManager redisCacheManager) {
         this.caffeineCacheManager = caffeineCacheManager;
@@ -26,7 +28,7 @@ public class MultipleCacheResolver implements CacheResolver {
     @Override
     @NotNull
     public Collection<? extends Cache> resolveCaches(CacheOperationInvocationContext<?> context) {
-         Collection<String> cacheNames = context.getOperation().getCacheNames();
+        Collection<String> cacheNames = context.getOperation().getCacheNames();
         if (CollectionUtils.isEmpty(cacheNames)) {
             return Collections.emptyList();
         }
@@ -42,13 +44,15 @@ public class MultipleCacheResolver implements CacheResolver {
             }
             caffeineRedisCache.setFirstCache(caffeineCache);
 
-            // 需要创建redis二级缓存
-            Cache redisCache = redisCacheManager.getCache(cacheName);
-            if (redisCache == null) {
-                throw new IllegalArgumentException("Cannot find cache named '" +
-                        cacheName + "' for " + context.getOperation());
+            if (enableRedisCache){
+                // 需要创建redis二级缓存
+                Cache redisCache = redisCacheManager.getCache(cacheName);
+                if (redisCache == null) {
+                    throw new IllegalArgumentException("Cannot find cache named '" +
+                            cacheName + "' for " + context.getOperation());
+                }
+                caffeineRedisCache.setSecondCache(redisCache);
             }
-            caffeineRedisCache.setSecondCache(redisCache);
 
             result.add(caffeineRedisCache);
         }

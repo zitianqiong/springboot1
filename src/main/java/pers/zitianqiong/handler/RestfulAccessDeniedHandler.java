@@ -7,14 +7,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.stereotype.Component;
-import pers.zitianqiong.common.ErrorResult;
+import pers.zitianqiong.common.Result;
 import pers.zitianqiong.common.ResultCode;
 
 import java.io.IOException;
 import java.io.PrintWriter;
 
 /**
- * <p>描述：</p>
+ * <p>描述：spring security 403无权限处理</p>
  *
  * @author 丛吉钰
  * @date 2023/1/9
@@ -31,7 +31,7 @@ public class RestfulAccessDeniedHandler implements AccessDeniedHandler {
         //3.相应的请求头
         response.setHeader("Content-Type","application/json;charset=utf-8");
         PrintWriter out = response.getWriter();
-        ErrorResult errorResult = ErrorResult.fail(ResultCode.LACK_OF_AUTHORITY.getCode(), "权限不足，请联系管理员");
+        Result errorResult = Result.fail(ResultCode.LACK_OF_AUTHORITY.getCode(), "权限不足，请联系管理员");
         out.write(new ObjectMapper().writeValueAsString(errorResult));
         out.flush();
         out.close();

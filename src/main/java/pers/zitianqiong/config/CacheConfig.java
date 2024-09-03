@@ -14,6 +14,7 @@ import org.springframework.cache.interceptor.CacheResolver;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Role;
+import org.springframework.data.redis.RedisConnectionFailureException;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
 import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
@@ -56,7 +57,7 @@ public class CacheConfig extends CachingConfigurerSupport {
                 Caffeine.newBuilder()
                         .initialCapacity(64)
                         .maximumSize(256)
-                        .expireAfterAccess(600, TimeUnit.SECONDS)
+                        .expireAfterAccess(6, TimeUnit.SECONDS)
                         .recordStats());
         cacheManager.setAllowNullValues(false);
         return cacheManager;
@@ -138,7 +139,14 @@ public class CacheConfig extends CachingConfigurerSupport {
      * @param key       .
      **/
     protected void handleRedisErrorException(RuntimeException exception, Object key, String reason) {
-        log.error("redis异常：{},key=[{}]", reason, key, exception);
+        if (exception instanceof RedisConnectionFailureException){
+            log.error("无法连接redis服务");
+            if (++MultipleCacheResolver.connectTimes > 3){
+                MultipleCacheResolver.enableRedisCache = false;
+            }
+        }else {
+            log.error("redis异常：{},key=[{}]", reason, key, exception);
+        }
     }
 
 }

@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import pers.zitianqiong.domain.status;
+import pers.zitianqiong.common.constats.status;
 
 import java.math.BigDecimal;
 
@@ -19,7 +19,7 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 public class DeptVO {
-    
+
     private Integer deptId;
     @NotNull
     private String deptName;

@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import pers.zitianqiong.common.constats.status;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -27,17 +28,17 @@ public class Dept implements Serializable {
      */
     @TableId(type = IdType.AUTO)
     private Integer deptId;
-    
+
     /**
      * 部门名称
      */
     private String deptName;
-    
+
     /**
      * 部门资金
      */
     private BigDecimal deptAccont;
-    
+
     /**
      * 状态
      */
@@ -47,7 +48,7 @@ public class Dept implements Serializable {
      * 状态
      */
     private LocalDate datestate;
-    
+
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;
 }
